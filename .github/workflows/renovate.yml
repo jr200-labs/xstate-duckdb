@@ -27,7 +27,7 @@ on:
 
 jobs:
   renovate:
-    uses: jr200-labs/github-action-templates/.github/workflows/renovate.yml@main
+    uses: jr200-labs/github-action-templates/.github/workflows/renovate.yml@master
     permissions:
       contents: write
       pull-requests: write
@@ -35,6 +35,7 @@ jobs:
     with:
       log-level: ${{ inputs.log-level || 'info' }}
       dry-run: ${{ inputs.dry-run || '' }}
+      runner: arc-linux-jr200-labs
     # The org-level INTEGRATION_APP_PRIVATE_KEY secret has to be passed
     # explicitly because GitHub Actions does NOT inherit secrets across
     # orgs (variables yes, secrets no). github-action-templates lives in
