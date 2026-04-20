@@ -31,7 +31,7 @@
     "test:run": "vitest run",
     "test:watch": "vitest",
     "prettier": "prettier --write \"**/*.{ts,mjs,js,json,md,yml,yaml}\"",
-    "lint": "tsc --noEmit",
+    "lint": "tsc --noEmit && eslint \"src/**/*.{ts,tsx}\"",
     "prepare": "husky",
     "prepublishOnly": "pnpm build && pnpm test"
   },
@@ -50,12 +50,16 @@
   },
   "devDependencies": {
     "@apache-arrow/ts": "^21.1.0",
+    "@eslint/js": "^10.0.1",
     "@statelyai/inspect": "^0.7.1",
     "@types/pako": "^2.0.4",
     "@vitest/coverage-v8": "^4.1.4",
+    "eslint": "^10.2.1",
+    "globals": "^17.5.0",
     "husky": "^9.1.7",
     "prettier": "^3.8.3",
     "typescript": "^6.0.2",
+    "typescript-eslint": "^8.58.2",
     "vite": "^6.4.2",
     "vitest": "^4.1.4"
   }
