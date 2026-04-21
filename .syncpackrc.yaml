@@ -1,0 +1,17 @@
+# syncpack config — enforce semver range consistency
+semverGroups:
+  - label: "Pinned pre-release versions"
+    dependencies:
+      - "@duckdb/duckdb-wasm"
+      - "@duckdb/duckdb-wasm-shell"
+    range: ""
+  - label: "Default — caret ranges"
+    dependencies:
+      - "**"
+    range: "^"
+
+versionGroups:
+  - label: "Ignore example apps"
+    packages:
+      - "@jr200-labs/xstate-duckdb-react-test"
+    isIgnored: true
