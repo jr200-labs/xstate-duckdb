@@ -1,6 +1,6 @@
 {
   "name": "@jr200-labs/xstate-duckdb",
-  "version": "0.3.0",
+  "version": "0.4.0",
   "description": "XState machine for DuckDB",
   "license": "MIT",
   "author": "Jayshan Raghunandan",
@@ -48,9 +48,16 @@
     "pako": "^2.1.0",
     "xstate": "^5.30.0"
   },
+  "peerDependencies": {
+    "@opentelemetry/api": "^1.9.0"
+  },
   "devDependencies": {
     "@apache-arrow/ts": "^21.1.0",
     "@eslint/js": "^10.0.1",
+    "@opentelemetry/api": "^1.9.0",
+    "@opentelemetry/context-async-hooks": "^2.7.0",
+    "@opentelemetry/core": "^2.7.0",
+    "@opentelemetry/sdk-trace-base": "^2.7.0",
     "@statelyai/inspect": "^0.7.1",
     "@types/pako": "^2.0.4",
     "@vitest/coverage-v8": "^4.1.4",
