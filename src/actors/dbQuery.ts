@@ -10,6 +10,7 @@ import {
   arrayToFirstValue,
   arrayToFirstRowMap,
 } from '../lib/utils'
+import { withSpan } from '../telemetry'
 
 export interface ResultOptions {
   key?: string
@@ -47,19 +48,33 @@ type DuckDbQueryResult =
 export async function duckdbRunQuery(
   input: QueryDbParams & { connection: AsyncDuckDBConnection },
 ): Promise<DuckDbQueryResult | void> {
-  const sql = input.sql as string
-  const raw =
-    input.resultOptions?.type === 'arrow'
-      ? await duckDbExecuteToArrow(input.description, sql, input.connection)
-      : await duckDbExecuteToJson(input.description, sql, input.connection)
+  return withSpan(
+    'xstate.duckdb.query',
+    'xstate.duckdb.error',
+    {
+      'query.description': input.description,
+      'result.type': input.resultOptions?.type,
+    },
+    async (span) => {
+      const sql = input.sql as string
+      const raw =
+        input.resultOptions?.type === 'arrow'
+          ? await duckDbExecuteToArrow(input.description, sql, input.connection)
+          : await duckDbExecuteToJson(input.description, sql, input.connection)
 
-  const result = formatResult(raw, input.resultOptions)
+      if (Array.isArray(raw)) {
+        span.setAttribute('result.row_count', raw.length)
+      }
 
-  if (input.callback) {
-    input.callback(result)
-  } else {
-    return result
-  }
+      const result = formatResult(raw, input.resultOptions)
+
+      if (input.callback) {
+        input.callback(result)
+        return undefined
+      }
+      return result
+    },
+  )
 }
 
 function formatResult(
@@ -148,20 +163,26 @@ async function duckDbExecuteToJson(
 
 export const beginTransaction = fromPromise(
   async ({ input }: { input: AsyncDuckDB }): Promise<AsyncDuckDBConnection> => {
-    const connection = await input.connect()
-    await connection.query('BEGIN TRANSACTION;')
-    return connection
+    return withSpan('xstate.duckdb.tx.begin', 'xstate.duckdb.error', {}, async () => {
+      const connection = await input.connect()
+      await connection.query('BEGIN TRANSACTION;')
+      return connection
+    })
   },
 )
 
 export const commitTransaction = fromPromise(
   async ({ input }: { input: AsyncDuckDBConnection }): Promise<void> => {
-    await input.query('COMMIT;')
+    return withSpan('xstate.duckdb.tx.commit', 'xstate.duckdb.error', {}, async () => {
+      await input.query('COMMIT;')
+    })
   },
 )
 
 export const rollbackTransaction = fromPromise(
   async ({ input }: { input: AsyncDuckDBConnection }): Promise<void> => {
-    await input.query('ROLLBACK;')
+    return withSpan('xstate.duckdb.tx.rollback', 'xstate.duckdb.error', {}, async () => {
+      await input.query('ROLLBACK;')
+    })
   },
 )

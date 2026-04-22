@@ -68,6 +68,54 @@ The `duckdbMachine` has the following states:
 - `CATALOG.DROP_TABLE`: Drop a table
 - `CATALOG.LIST_DEFINITIONS`: Get catalog configuration
 
+## OpenTelemetry
+
+This library emits OpenTelemetry spans for DuckDB lifecycle, query, transaction,
+and catalog operations. DuckDB runs in-process (WASM) so there is no cross-
+process context propagation — spans attach to the ambient OTel context so they
+nest correctly under any caller-provided parent span.
+
+### Emitted spans
+
+| Span name                   | Emitted by                       | Attributes                                                            |
+| --------------------------- | -------------------------------- | --------------------------------------------------------------------- |
+| `xstate.duckdb.init`        | `initDuckDb`                     | `duckdb.version`                                                      |
+| `xstate.duckdb.close`       | `closeDuckDb`                    | —                                                                     |
+| `xstate.duckdb.query`       | `duckdbRunQuery` / `queryDuckDb` | `query.description`, `result.type`, `result.row_count`                |
+| `xstate.duckdb.tx.begin`    | `beginTransaction`               | —                                                                     |
+| `xstate.duckdb.tx.commit`   | `commitTransaction`              | —                                                                     |
+| `xstate.duckdb.tx.rollback` | `rollbackTransaction`            | —                                                                     |
+| `xstate.duckdb.load_table`  | `loadTableIntoDuckDb`            | `table.spec`, `payload.type`, `payload.compression`, `table.instance` |
+| `xstate.duckdb.prune`       | `pruneTableVersions`             | `pruned.instances`, `kept.versions`                                   |
+
+All error paths record exceptions on the active span, set span status to
+`ERROR`, and emit an `xstate.duckdb.error` event with a truncated stack.
+
+### Enabling tracing
+
+`@opentelemetry/api` is a peer dependency — the consumer controls the installed
+version and registers the SDK. If no provider is registered all telemetry calls
+become no-ops. Minimal setup:
+
+```ts
+import { trace, propagation, context } from '@opentelemetry/api'
+import { AsyncLocalStorageContextManager } from '@opentelemetry/context-async-hooks'
+import { W3CTraceContextPropagator } from '@opentelemetry/core'
+import { BasicTracerProvider, SimpleSpanProcessor } from '@opentelemetry/sdk-trace-base'
+
+const provider = new BasicTracerProvider({
+  spanProcessors: [
+    /* your exporter */
+  ],
+})
+trace.setGlobalTracerProvider(provider)
+propagation.setGlobalPropagator(new W3CTraceContextPropagator())
+
+const ctxMgr = new AsyncLocalStorageContextManager()
+ctxMgr.enable()
+context.setGlobalContextManager(ctxMgr)
+```
+
 ## Examples
 
 ### Basic Usage
