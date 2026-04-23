@@ -1,10 +1,5 @@
 # syncpack config — enforce semver range consistency
 semverGroups:
-  - label: 'Pinned pre-release versions'
-    dependencies:
-      - '@duckdb/duckdb-wasm'
-      - '@duckdb/duckdb-wasm-shell'
-    range: ''
   - label: 'Default — caret ranges'
     dependencies:
       - '**'
