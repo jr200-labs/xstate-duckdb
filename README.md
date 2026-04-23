@@ -23,6 +23,22 @@ yarn add @jr200-labs/xstate-duckdb
 pnpm add @jr200-labs/xstate-duckdb
 ```
 
+### Peer dependencies
+
+`@duckdb/duckdb-wasm`, `apache-arrow`, and `@opentelemetry/api` are declared as peer dependencies and must be installed directly by the consumer. This guarantees a single resolved version across the dependency tree -- preventing the class of bug where a transitive copy of DuckDB-wasm diverges from the `.wasm` assets the consumer actually ships.
+
+```bash
+pnpm add @duckdb/duckdb-wasm apache-arrow @opentelemetry/api
+```
+
+Supported ranges:
+
+| Peer                  | Range                 |
+| --------------------- | --------------------- |
+| `@duckdb/duckdb-wasm` | `>=1.33.1-dev42.0 <2` |
+| `apache-arrow`        | `>=21 <22`            |
+| `@opentelemetry/api`  | `^1.9.0`              |
+
 ## API Reference
 
 ### Machine States

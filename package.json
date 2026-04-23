@@ -42,17 +42,18 @@
     "state-machine"
   ],
   "dependencies": {
-    "@duckdb/duckdb-wasm": "^1.33.1-dev42.0",
-    "apache-arrow": "^21.1.0",
     "duckdb-wasm-kit": "^0.1.39",
     "pako": "^2.1.0",
     "xstate": "^5.30.0"
   },
   "peerDependencies": {
-    "@opentelemetry/api": "^1.9.0"
+    "@duckdb/duckdb-wasm": ">=1.33.1-dev42.0 <2",
+    "@opentelemetry/api": "^1.9.0",
+    "apache-arrow": ">=21 <22"
   },
   "devDependencies": {
     "@apache-arrow/ts": "^21.1.0",
+    "@duckdb/duckdb-wasm": "^1.33.1-dev42.0",
     "@eslint/js": "^10.0.1",
     "@opentelemetry/api": "^1.9.0",
     "@opentelemetry/context-async-hooks": "^2.7.0",
@@ -61,6 +62,7 @@
     "@statelyai/inspect": "^0.7.1",
     "@types/pako": "^2.0.4",
     "@vitest/coverage-v8": "^4.1.4",
+    "apache-arrow": "^21.1.0",
     "eslint": "^10.2.1",
     "globals": "^17.5.0",
     "husky": "^9.1.7",
