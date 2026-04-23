@@ -1,5 +1,16 @@
 # Changelog
 
+## [1.0.0](https://github.com/jr200-labs/xstate-duckdb/compare/v0.5.1...v1.0.0) (2026-04-23)
+
+
+### ⚠ BREAKING CHANGES
+
+* move @duckdb/duckdb-wasm and apache-arrow to peerDependencies ([#21](https://github.com/jr200-labs/xstate-duckdb/issues/21))
+
+### Features
+
+* move @duckdb/duckdb-wasm and apache-arrow to peerDependencies ([#21](https://github.com/jr200-labs/xstate-duckdb/issues/21)) ([8bb57a2](https://github.com/jr200-labs/xstate-duckdb/commit/8bb57a26f58735f814faabbb659460b4d504cbc1))
+
 ## [0.5.1](https://github.com/jr200-labs/xstate-duckdb/compare/v0.5.0...v0.5.1) (2026-04-23)
 
 ### Bug Fixes
