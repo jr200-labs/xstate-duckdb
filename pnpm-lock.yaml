@@ -9,7 +9,7 @@ importers:
   .:
     dependencies:
       '@duckdb/duckdb-wasm':
-        specifier: 1.33.1-dev45.0
+        specifier: ^1.33.1-dev42.0
         version: 1.33.1-dev45.0
       apache-arrow:
         specifier: ^21.1.0
