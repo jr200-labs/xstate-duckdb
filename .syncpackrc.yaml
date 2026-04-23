@@ -6,6 +6,13 @@ semverGroups:
     range: '^'
 
 versionGroups:
+  - label: 'Peer ranges — broader than dev install pins by design'
+    dependencyTypes:
+      - 'peer'
+    dependencies:
+      - '@duckdb/duckdb-wasm'
+      - 'apache-arrow'
+    isIgnored: true
   - label: 'Ignore example apps'
     packages:
       - '@jr200-labs/xstate-duckdb-react-test'
