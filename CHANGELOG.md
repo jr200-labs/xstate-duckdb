@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.1.0](https://github.com/jr200-labs/xstate-duckdb/compare/v1.0.0...v1.1.0) (2026-04-24)
+
+
+### Features
+
+* migrate syncpack to shared base (JRL-30) ([#24](https://github.com/jr200-labs/xstate-duckdb/issues/24)) ([fac3031](https://github.com/jr200-labs/xstate-duckdb/commit/fac3031694d4001db6d54a6dabedad75215a1b06))
+
 ## [1.0.0](https://github.com/jr200-labs/xstate-duckdb/compare/v0.5.1...v1.0.0) (2026-04-23)
 
 
