@@ -44,7 +44,7 @@
   "dependencies": {
     "duckdb-wasm-kit": "^0.1.39",
     "pako": "^2.1.0",
-    "xstate": "^5.31.0"
+    "xstate": "^5.31.1"
   },
   "peerDependencies": {
     "@duckdb/duckdb-wasm": ">=1.33.1-dev42.0 <2",
