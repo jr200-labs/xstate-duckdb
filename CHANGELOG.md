@@ -1,5 +1,15 @@
 # Changelog
 
+## [1.1.2](https://github.com/jr200-labs/xstate-duckdb/compare/v1.1.1...v1.1.2) (2026-05-18)
+
+
+### Bug Fixes
+
+* **deps:** update actions/create-github-app-token action to v3.2.0 ([#38](https://github.com/jr200-labs/xstate-duckdb/issues/38)) ([1eabec1](https://github.com/jr200-labs/xstate-duckdb/commit/1eabec1202bef7a2276e7a4a7415757c4b6c8230))
+* **deps:** update all non-major dependencies ([#37](https://github.com/jr200-labs/xstate-duckdb/issues/37)) ([7b8daa9](https://github.com/jr200-labs/xstate-duckdb/commit/7b8daa9760823f5b8c087f342afb3c36380f0a83))
+* **deps:** update all non-major dependencies ([#39](https://github.com/jr200-labs/xstate-duckdb/issues/39)) ([be49073](https://github.com/jr200-labs/xstate-duckdb/commit/be49073da36c371c18eac8fa8d538456a0940c0e))
+* **deps:** update dependency xstate to ^5.31.1 ([#35](https://github.com/jr200-labs/xstate-duckdb/issues/35)) ([d1fdd25](https://github.com/jr200-labs/xstate-duckdb/commit/d1fdd25b6251c4f347bbd3334ad5b47114dcfa76))
+
 ## [1.1.1](https://github.com/jr200-labs/xstate-duckdb/compare/v1.1.0...v1.1.1) (2026-05-09)
 
 
