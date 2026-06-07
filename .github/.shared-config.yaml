@@ -1,5 +1,6 @@
-ref: shared-v0.1.0
+ref: shared-v0.1.2
 workflows:
   - hygiene
   - node
   - release
+  - npm-package
