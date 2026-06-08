@@ -1,5 +1,17 @@
 # Changelog
 
+## [1.2.0](https://github.com/jr200-labs/xstate-duckdb/compare/v1.1.5...v1.2.0) (2026-06-08)
+
+
+### Features
+
+* track duckdb load metrics ([#51](https://github.com/jr200-labs/xstate-duckdb/issues/51)) ([122b40c](https://github.com/jr200-labs/xstate-duckdb/commit/122b40c3591859889f7cfb1e9ff2a53fe4162ef9))
+
+
+### Bug Fixes
+
+* **deps:** update all non-major dependencies to shared-v0.1.7 ([#50](https://github.com/jr200-labs/xstate-duckdb/issues/50)) ([4e8cd0e](https://github.com/jr200-labs/xstate-duckdb/commit/4e8cd0e55bbe0ed6f47074a121eb05ca5c0bf91c))
+
 ## [1.1.5](https://github.com/jr200-labs/xstate-duckdb/compare/v1.1.4...v1.1.5) (2026-06-07)
 
 
