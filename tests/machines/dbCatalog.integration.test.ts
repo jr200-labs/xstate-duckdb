@@ -11,6 +11,16 @@ const mockLoadedEntry: LoadedTableEntry = {
   loadedEpoch: Date.now(),
 }
 
+const mockLoadedEntryWithMetrics = {
+  ...mockLoadedEntry,
+  loadMetrics: {
+    tableSpecName: 'test',
+    encodedBytes: 12,
+    decodedBytes: 9,
+    loadedBytes: 120,
+  },
+}
+
 function createTestMachine(
   loadResult: LoadedTableEntry = mockLoadedEntry,
   pruneResult?: { loadedVersions: LoadedTableEntry[] },
@@ -42,9 +52,23 @@ function waitForState(actor: any, targetState: string, timeout = 3000): Promise<
   })
 }
 
+function waitForCondition(actor: any, condition: () => boolean, timeout = 3000): Promise<void> {
+  return new Promise((resolve, reject) => {
+    const timer = setTimeout(() => reject(new Error('Timed out waiting for condition')), timeout)
+    const check = () => {
+      if (condition()) {
+        clearTimeout(timer)
+        resolve()
+      }
+    }
+    check()
+    actor.subscribe(() => check())
+  })
+}
+
 describe('actual dbCatalogLogic with mocked actors', () => {
   it('starts in idle state', () => {
-    const machine = createTestMachine()
+    const machine = createTestMachine(mockLoadedEntryWithMetrics)
     const actor = createActor(machine)
     actor.start()
     expect(actor.getSnapshot().value).toBe('idle')
@@ -52,7 +76,7 @@ describe('actual dbCatalogLogic with mocked actors', () => {
   })
 
   it('idle -> configured -> connected', () => {
-    const machine = createTestMachine()
+    const machine = createTestMachine(mockLoadedEntryWithMetrics)
     const actor = createActor(machine)
     actor.start()
 
@@ -68,7 +92,7 @@ describe('actual dbCatalogLogic with mocked actors', () => {
   })
 
   it('processes CATALOG.LOAD_TABLE through loading_table -> pruning_versions -> connected', async () => {
-    const machine = createTestMachine()
+    const machine = createTestMachine(mockLoadedEntryWithMetrics)
     const actor = createActor(machine)
     actor.start()
 
@@ -89,10 +113,30 @@ describe('actual dbCatalogLogic with mocked actors', () => {
       duckDbHandle: {},
     } as any)
 
-    await waitForState(actor, 'connected')
+    await waitForCondition(actor, () => actor.getSnapshot().context.nextTableId === 2)
 
     expect(actor.getSnapshot().context.loadedVersions).toHaveLength(1)
+    expect(actor.getSnapshot().context.loadMetrics).toEqual({
+      encodedBytes: 12,
+      decodedBytes: 9,
+      loadedBytes: 120,
+      byTable: {
+        test: {
+          encodedBytes: 12,
+          decodedBytes: 9,
+          loadedBytes: 120,
+        },
+      },
+    })
     expect(actor.getSnapshot().context.nextTableId).toBe(2)
+
+    actor.send({ type: 'CATALOG.METRICS.RESET_LOADS', tableSpecName: 'test' })
+    expect(actor.getSnapshot().context.loadMetrics).toEqual({
+      encodedBytes: 0,
+      decodedBytes: 0,
+      loadedBytes: 0,
+      byTable: {},
+    })
     actor.stop()
   })
 

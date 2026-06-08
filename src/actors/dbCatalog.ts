@@ -3,6 +3,7 @@ import { JSONObject, TableDefinition, LoadedTableEntry } from '../lib/types'
 import { AsyncDuckDBConnection } from '@duckdb/duckdb-wasm'
 import pako from 'pako'
 import { withSpan } from '../telemetry'
+import { byteLength, DuckDbLoadMetricRecord } from '../loadMetrics'
 
 export interface LoadTableInput {
   nextTableId: number
@@ -10,6 +11,11 @@ export interface LoadTableInput {
   payloadCompression: 'none' | 'zlib'
   tableDefinitions: TableDefinition[]
   callback: (tableInstanceName: string, error?: string) => void
+}
+
+type LoadTableResult = {
+  error?: null | string
+  loadMetrics: DuckDbLoadMetricRecord
 }
 
 export const loadTableIntoDuckDb = fromPromise(async ({ input }: any) => {
@@ -39,12 +45,13 @@ export const loadTableIntoDuckDb = fromPromise(async ({ input }: any) => {
           tableInstanceName: tableNameInstance,
           loadedEpoch: Date.now(),
         }
-        let result: any
+        let result: LoadTableResult
 
         const dbConnection = await input.duckDbHandle.connect()
         if (payloadType === 'json') {
           result = await loadTableFromJson(
             tableDefinition.isVersioned,
+            tableDefinition.name,
             tableDefinition.schema,
             tableNameInstance,
             input.tablePayload,
@@ -54,6 +61,7 @@ export const loadTableIntoDuckDb = fromPromise(async ({ input }: any) => {
         } else if (payloadType === 'b64ipc') {
           result = await loadTableFromB64ipc(
             tableDefinition.isVersioned,
+            tableDefinition.name,
             tableDefinition.schema,
             tableNameInstance,
             input.tablePayload,
@@ -61,11 +69,25 @@ export const loadTableIntoDuckDb = fromPromise(async ({ input }: any) => {
             payloadCompression,
           )
         } else {
-          result = { error: `Unknown payload type: ${payloadType}` }
+          result = {
+            error: `Unknown payload type: ${payloadType}`,
+            loadMetrics: {
+              tableSpecName: tableDefinition.name,
+              encodedBytes: 0,
+              decodedBytes: 0,
+              loadedBytes: 0,
+            },
+          }
         }
 
+        span.setAttribute('payload.encoded_bytes', result.loadMetrics.encodedBytes)
+        span.setAttribute('payload.decoded_bytes', result.loadMetrics.decodedBytes)
+        span.setAttribute('payload.loaded_bytes', result.loadMetrics.loadedBytes)
         input.callback?.(tableNameInstance, result.error)
-        return catalogEntry
+        return {
+          ...catalogEntry,
+          loadMetrics: result.loadMetrics,
+        }
       } catch (error: any) {
         input.callback?.({ error: error.message })
         return { error: error.message }
@@ -86,24 +108,34 @@ function makeTableNameInstance(definition: TableDefinition, nextTableId: number)
 }
 async function loadTableFromJson(
   tableIsVersioned: boolean,
+  tableSpecName: string,
   tableSchema: string,
   tableName: string,
   jsonPayload: JSONObject,
-  dbConnection: AsyncDuckDBConnection,
-  compression: 'none' | 'zlib',
-): Promise<any> {
+  _dbConnection: AsyncDuckDBConnection,
+  _compression: 'none' | 'zlib',
+): Promise<LoadTableResult> {
   console.log('loadTableFromJson', tableName, jsonPayload, tableIsVersioned)
-  return { tableSchema, tableName, dbConnection, compression, jsonPayload }
+  const bytes = byteLength(jsonPayload)
+  return {
+    loadMetrics: {
+      tableSpecName,
+      encodedBytes: bytes,
+      decodedBytes: bytes,
+      loadedBytes: bytes,
+    },
+  }
 }
 
 async function loadTableFromB64ipc(
   tableIsVersioned: boolean,
+  tableSpecName: string,
   tableSchema: string,
   tableName: string,
   base64ipc: string,
   connection: AsyncDuckDBConnection,
   compression: 'none' | 'zlib',
-): Promise<any> {
+): Promise<LoadTableResult> {
   // const msgSizeMb = base64ipc.length / 1024 / 1024
 
   const binaryString = window.atob(base64ipc)
@@ -114,6 +146,12 @@ async function loadTableFromB64ipc(
 
   // Decompress with pako if zlib compression is enabled
   const finalByteArray = compression === 'zlib' ? pako.inflate(byteArray) : byteArray
+  const loadMetrics = {
+    tableSpecName,
+    encodedBytes: byteLength(base64ipc),
+    decodedBytes: byteArray.byteLength,
+    loadedBytes: finalByteArray.byteLength,
+  }
 
   try {
     if (!tableIsVersioned) {
@@ -127,10 +165,10 @@ async function loadTableFromB64ipc(
     })
   } catch (error: any) {
     console.error('Error loading table from b64ipc', error)
-    return { result: 'error', error: error }
+    return { error, loadMetrics }
   }
 
-  return { result: 'ok', error: null }
+  return { error: null, loadMetrics }
 }
 
 export const pruneTableVersions = fromPromise(async ({ input }: any) => {

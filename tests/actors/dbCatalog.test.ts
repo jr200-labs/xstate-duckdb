@@ -64,6 +64,12 @@ describe('loadTableIntoDuckDb', () => {
     expect(result.tableInstanceName).toBe('users_5')
     expect(result.tableIsVersioned).toBe(true)
     expect(result.tableVersionId).toBe(5)
+    expect(result.loadMetrics).toEqual({
+      tableSpecName: 'users',
+      encodedBytes: 16,
+      decodedBytes: 16,
+      loadedBytes: 16,
+    })
     expect(callback).toHaveBeenCalledWith('users_5', undefined)
   })
 
@@ -151,6 +157,12 @@ describe('loadTableIntoDuckDb', () => {
     })
 
     expect(result.tableSpecName).toBe('users')
+    expect(result.loadMetrics).toEqual({
+      tableSpecName: 'users',
+      encodedBytes: 12,
+      decodedBytes: 9,
+      loadedBytes: 9,
+    })
     expect(mockInsertArrowFromIPCStream).toHaveBeenCalled()
     expect(callback).toHaveBeenCalledWith('users_1', null)
   })

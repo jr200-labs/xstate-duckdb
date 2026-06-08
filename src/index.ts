@@ -19,5 +19,14 @@ export type {
 } from './lib/types'
 
 export { duckdbRunQuery, type QueryDbParams, type ResultOptions } from './actors/dbQuery'
+export {
+  byteLength as duckDbLoadMetricByteLength,
+  createEmptyDuckDbLoadMetrics,
+  recordDuckDbLoadMetric,
+  resetDuckDbLoadMetrics,
+  type DuckDbLoadMetricBucket,
+  type DuckDbLoadMetricRecord,
+  type DuckDbLoadMetrics,
+} from './loadMetrics'
 
 export type DuckDbCatalogSnapshot = SnapshotFrom<typeof dbCatalogLogic>
