@@ -59,7 +59,7 @@
     "@opentelemetry/context-async-hooks": "^2.8.0",
     "@opentelemetry/core": "^2.8.0",
     "@opentelemetry/sdk-trace-base": "^2.8.0",
-    "@statelyai/inspect": "^0.7.1",
+    "@statelyai/inspect": "^0.7.2",
     "@types/pako": "^2.0.4",
     "@vitest/coverage-v8": "^4.1.8",
     "apache-arrow": "^21.1.0",
