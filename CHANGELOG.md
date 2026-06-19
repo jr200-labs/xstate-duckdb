@@ -1,5 +1,17 @@
 # Changelog
 
+## [1.3.0](https://github.com/jr200-labs/xstate-duckdb/compare/v1.2.2...v1.3.0) (2026-06-19)
+
+
+### Features
+
+* **deps:** update github-actions to v7 ([#63](https://github.com/jr200-labs/xstate-duckdb/issues/63)) ([63d8053](https://github.com/jr200-labs/xstate-duckdb/commit/63d80539fe9df3fd1cbcdb8ecb2deedddc4bcaeb))
+
+
+### Bug Fixes
+
+* **deps:** update all non-major dependencies ([#62](https://github.com/jr200-labs/xstate-duckdb/issues/62)) ([8dacb12](https://github.com/jr200-labs/xstate-duckdb/commit/8dacb12b94b05df2593d48ccc2c9700c7f7def01))
+
 ## [1.2.2](https://github.com/jr200-labs/xstate-duckdb/compare/v1.2.1...v1.2.2) (2026-06-15)
 
 
