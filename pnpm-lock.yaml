@@ -12,8 +12,8 @@ importers:
         specifier: ^0.1.39
         version: 0.1.39(@duckdb/duckdb-wasm@1.33.1-dev45.0)(apache-arrow@21.1.0)(react@19.2.5)
       pako:
-        specifier: ^2.2.0
-        version: 2.2.0
+        specifier: ^3.0.0
+        version: 3.0.0
       xstate:
         specifier: ^5.32.2
         version: 5.32.2
@@ -1618,8 +1618,8 @@ packages:
     resolution: {integrity: sha512-LaNjtRWUBY++zB5nE/NwcaoMylSPk+S+ZHNB1TzdbMJMny6dynpAGt7X/tl/QYq3TIeE6nxHppbo2LGymrG5Pw==}
     engines: {node: '>=10'}
 
-  pako@2.2.0:
-    resolution: {integrity: sha512-zJq6RP/5q+TO2OpFV3FHzlPnFjmkb7Nc99a5SNjJE+uu/PkpChs+NIZSSzbBoD+6kjiISXjfYdwj1ZRQ81dz/w==}
+  pako@3.0.0:
+    resolution: {integrity: sha512-TGPtlCI1pSUSbkOIxOUUHNrBa0muz4mAp32cYUF3RoSa5c73jiQTKOKo22gaa4DxLggQrda/DAdax5QkcHPvYA==}
 
   partysocket@0.0.25:
     resolution: {integrity: sha512-1oCGA65fydX/FgdnsiBh68buOvfxuteoZVSb3Paci2kRp/7lhF0HyA8EDb5X/O6FxId1e+usPTQNRuzFEvkJbQ==}
@@ -3565,7 +3565,7 @@ snapshots:
     dependencies:
       p-limit: 3.1.0
 
-  pako@2.2.0: {}
+  pako@3.0.0: {}
 
   partysocket@0.0.25:
     dependencies:
