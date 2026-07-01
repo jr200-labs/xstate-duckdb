@@ -15,8 +15,8 @@ importers:
         specifier: ^3.0.0
         version: 3.0.0
       xstate:
-        specifier: ^5.32.2
-        version: 5.32.2
+        specifier: ^5.32.3
+        version: 5.32.3
     devDependencies:
       '@apache-arrow/ts':
         specifier: ^21.1.0
@@ -41,7 +41,7 @@ importers:
         version: 2.8.0(@opentelemetry/api@1.9.1)
       '@statelyai/inspect':
         specifier: ^0.7.2
-        version: 0.7.2(xstate@5.32.2)
+        version: 0.7.2(xstate@5.32.3)
       '@types/pako':
         specifier: ^2.0.4
         version: 2.0.4
@@ -86,10 +86,10 @@ importers:
         version: link:../..
       '@statelyai/inspect':
         specifier: ^0.4.0
-        version: 0.4.0(ws@8.20.0)(xstate@5.32.2)
+        version: 0.4.0(ws@8.20.0)(xstate@5.32.3)
       '@xstate/react':
         specifier: ^6.0.0
-        version: 6.1.0(@types/react@19.2.14)(react@19.2.5)(xstate@5.32.2)
+        version: 6.1.0(@types/react@19.2.14)(react@19.2.5)(xstate@5.32.3)
       '@xterm/xterm':
         specifier: ^5.5.0
         version: 5.5.0
@@ -107,7 +107,7 @@ importers:
         version: 19.2.5(react@19.2.5)
       xstate:
         specifier: ^5.20.1
-        version: 5.32.2
+        version: 5.32.3
     devDependencies:
       '@types/react':
         specifier: ^19.1.9
@@ -2157,8 +2157,8 @@ packages:
       utf-8-validate:
         optional: true
 
-  xstate@5.32.2:
-    resolution: {integrity: sha512-uDrojEQYYb4cEeB/SpKDBQlnL2969N5ltmVak4jUMUC6VVRuhi7PCnTBxe4YlQ8YLzdaOEOuVR48CRQPE2o0Uw==}
+  xstate@5.32.3:
+    resolution: {integrity: sha512-I8PDV+D9f5iuAGR/CjiQwf/7A+iiSWHsd16jWe/2Z1GQh4T4JQBYvpauqBK+SAU3TegOBtTvxcqAjhJnqeT0sg==}
 
   xterm-addon-fit@0.8.0:
     resolution: {integrity: sha512-yj3Np7XlvxxhYF/EJ7p3KHaMt6OdwQ+HDu573Vx1lRXsVxOcnVJs51RgjZOouIZOczTsskaS+CpXspK81/DLqw==}
@@ -2675,7 +2675,7 @@ snapshots:
 
   '@standard-schema/spec@1.1.0': {}
 
-  '@statelyai/inspect@0.4.0(ws@8.20.0)(xstate@5.32.2)':
+  '@statelyai/inspect@0.4.0(ws@8.20.0)(xstate@5.32.3)':
     dependencies:
       fast-safe-stringify: 2.1.1
       isomorphic-ws: 5.0.0(ws@8.20.0)
@@ -2683,11 +2683,11 @@ snapshots:
       safe-stable-stringify: 2.5.0
       superjson: 1.13.3
       uuid: 9.0.1
-      xstate: 5.32.2
+      xstate: 5.32.3
     transitivePeerDependencies:
       - ws
 
-  '@statelyai/inspect@0.7.2(xstate@5.32.2)':
+  '@statelyai/inspect@0.7.2(xstate@5.32.3)':
     dependencies:
       fast-safe-stringify: 2.1.1
       isomorphic-ws: 5.0.0(ws@8.20.0)
@@ -2695,7 +2695,7 @@ snapshots:
       safe-stable-stringify: 2.5.0
       superjson: 1.13.3
       ws: 8.20.0
-      xstate: 5.32.2
+      xstate: 5.32.3
     transitivePeerDependencies:
       - bufferutil
       - utf-8-validate
@@ -2923,13 +2923,13 @@ snapshots:
       convert-source-map: 2.0.0
       tinyrainbow: 3.1.0
 
-  '@xstate/react@6.1.0(@types/react@19.2.14)(react@19.2.5)(xstate@5.32.2)':
+  '@xstate/react@6.1.0(@types/react@19.2.14)(react@19.2.5)(xstate@5.32.3)':
     dependencies:
       react: 19.2.5
       use-isomorphic-layout-effect: 1.2.1(@types/react@19.2.14)(react@19.2.5)
       use-sync-external-store: 1.6.0(react@19.2.5)
     optionalDependencies:
-      xstate: 5.32.2
+      xstate: 5.32.3
     transitivePeerDependencies:
       - '@types/react'
 
@@ -4022,7 +4022,7 @@ snapshots:
 
   ws@8.20.0: {}
 
-  xstate@5.32.2: {}
+  xstate@5.32.3: {}
 
   xterm-addon-fit@0.8.0(xterm@5.3.0):
     dependencies:
