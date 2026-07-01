@@ -1,5 +1,34 @@
 # Changelog
 
+## [1.4.0](https://github.com/jr200-labs/xstate-duckdb/compare/v1.3.0...v1.4.0) (2026-07-01)
+
+
+### Features
+
+* **deps:** update dependency pako to v3 ([#79](https://github.com/jr200-labs/xstate-duckdb/issues/79)) ([ee498e1](https://github.com/jr200-labs/xstate-duckdb/commit/ee498e1689721bf61ddf04f949d423de779580e5))
+* **deps:** update github-actions ([#67](https://github.com/jr200-labs/xstate-duckdb/issues/67)) ([1547c9d](https://github.com/jr200-labs/xstate-duckdb/commit/1547c9d92d1f8710eb4d9fd438fd0157c9af4bf5))
+* **deps:** update github-actions ([#71](https://github.com/jr200-labs/xstate-duckdb/issues/71)) ([5874a2c](https://github.com/jr200-labs/xstate-duckdb/commit/5874a2c81968b557d5b3d33d7464f02ed88489ee))
+
+
+### Bug Fixes
+
+* **deps:** update all non-major dependencies ([#75](https://github.com/jr200-labs/xstate-duckdb/issues/75)) ([5cf2b10](https://github.com/jr200-labs/xstate-duckdb/commit/5cf2b10d7077ef95008a6b031e94635a6694ee0d))
+* **deps:** update all non-major dependencies ([#77](https://github.com/jr200-labs/xstate-duckdb/issues/77)) ([ae10b3f](https://github.com/jr200-labs/xstate-duckdb/commit/ae10b3f4dd8b14724aa0404a75f0e8ed79ca06b0))
+* **deps:** update all non-major dependencies ([#81](https://github.com/jr200-labs/xstate-duckdb/issues/81)) ([5d226dc](https://github.com/jr200-labs/xstate-duckdb/commit/5d226dc13d8d7684aab8943d4df13019880ff769))
+* **deps:** update all non-major dependencies ([#83](https://github.com/jr200-labs/xstate-duckdb/issues/83)) ([3b1695b](https://github.com/jr200-labs/xstate-duckdb/commit/3b1695b317051c4724034c9aa4d47e2cd06c2327))
+* **deps:** update dependency jr200-labs/github-action-templates to shared-v0.1.19 ([#76](https://github.com/jr200-labs/xstate-duckdb/issues/76)) ([5275b2e](https://github.com/jr200-labs/xstate-duckdb/commit/5275b2e75962de9d820163a6c672314819be9873))
+* **deps:** update dependency jr200-labs/github-action-templates to shared-v0.1.20 ([#80](https://github.com/jr200-labs/xstate-duckdb/issues/80)) ([4b603f6](https://github.com/jr200-labs/xstate-duckdb/commit/4b603f6319e09059cbc5bfe13bbec28b6721745b))
+* **deps:** update dependency jr200-labs/github-action-templates to shared-v0.1.21 ([#84](https://github.com/jr200-labs/xstate-duckdb/issues/84)) ([8bf0cd2](https://github.com/jr200-labs/xstate-duckdb/commit/8bf0cd26855a2bfa8bc3e760cf6e51c886a96761))
+* **deps:** update dependency jr200-labs/github-action-templates to shared-v0.1.23 ([#85](https://github.com/jr200-labs/xstate-duckdb/issues/85)) ([939dd0f](https://github.com/jr200-labs/xstate-duckdb/commit/939dd0febe4fae45dcc65bb89eeaff21fe8cca71))
+* **deps:** update dependency prettier to ^3.8.5 ([#78](https://github.com/jr200-labs/xstate-duckdb/issues/78)) ([c1a42e1](https://github.com/jr200-labs/xstate-duckdb/commit/c1a42e12fd0199ed19a04755665fe37d66c9352c))
+* **deps:** update dependency prettier to ^3.9.1 ([#82](https://github.com/jr200-labs/xstate-duckdb/issues/82)) ([dce5784](https://github.com/jr200-labs/xstate-duckdb/commit/dce5784e08b4142ff4db3cdfef182eaa3c4b59dc))
+* **deps:** update dependency xstate to ^5.32.3 ([#86](https://github.com/jr200-labs/xstate-duckdb/issues/86)) ([5e74132](https://github.com/jr200-labs/xstate-duckdb/commit/5e741327506d3edfcb64e824fe06bf33c7322089))
+* **deps:** update shared workflow ref ([#66](https://github.com/jr200-labs/xstate-duckdb/issues/66)) ([9c05cce](https://github.com/jr200-labs/xstate-duckdb/commit/9c05cce3ab341230e6f03166f92c1e5b57549936))
+* **deps:** update shared workflow ref ([#70](https://github.com/jr200-labs/xstate-duckdb/issues/70)) ([e9cc05e](https://github.com/jr200-labs/xstate-duckdb/commit/e9cc05e7e0089ac3b54e47d41a5be7685a09835e))
+* **deps:** update shared workflow ref ([#72](https://github.com/jr200-labs/xstate-duckdb/issues/72)) ([7981aad](https://github.com/jr200-labs/xstate-duckdb/commit/7981aadf8b8e1414f11d343e1b8f3066b907d381))
+* **deps:** update shared workflow ref ([#73](https://github.com/jr200-labs/xstate-duckdb/issues/73)) ([79e9d94](https://github.com/jr200-labs/xstate-duckdb/commit/79e9d9456057e1ba9847b269bfb4a1fe4ea36225))
+* **deps:** update shared workflow ref ([#74](https://github.com/jr200-labs/xstate-duckdb/issues/74)) ([ea72c88](https://github.com/jr200-labs/xstate-duckdb/commit/ea72c88959440d11a35b0c9ecb4772b8c971a8bd))
+
 ## [1.3.0](https://github.com/jr200-labs/xstate-duckdb/compare/v1.2.2...v1.3.0) (2026-06-19)
 
 
