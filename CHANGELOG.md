@@ -1,5 +1,18 @@
 # Changelog
 
+## [1.5.0](https://github.com/jr200-labs/xstate-duckdb/compare/v1.4.0...v1.5.0) (2026-07-12)
+
+
+### Features
+
+* **deps:** update dependency typescript to v7 ([#92](https://github.com/jr200-labs/xstate-duckdb/issues/92)) ([925d67a](https://github.com/jr200-labs/xstate-duckdb/commit/925d67aab6c6315830b4b4f9ce99df315a25f291))
+
+
+### Bug Fixes
+
+* **deps:** update all non-major dependencies ([#90](https://github.com/jr200-labs/xstate-duckdb/issues/90)) ([886c5fe](https://github.com/jr200-labs/xstate-duckdb/commit/886c5fed64d2264bed2e95bcb11bca0a4fd804a6))
+* **deps:** update dependency jr200-labs/github-action-templates to shared-v0.1.29 ([#91](https://github.com/jr200-labs/xstate-duckdb/issues/91)) ([ab9e817](https://github.com/jr200-labs/xstate-duckdb/commit/ab9e817ed62bc4b3848708d4becd7fd7fa0e71ef))
+
 ## [1.4.0](https://github.com/jr200-labs/xstate-duckdb/compare/v1.3.0...v1.4.0) (2026-07-06)
 
 
