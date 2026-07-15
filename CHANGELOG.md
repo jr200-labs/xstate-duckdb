@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.5.1](https://github.com/jr200-labs/xstate-duckdb/compare/v1.5.0...v1.5.1) (2026-07-15)
+
+
+### Bug Fixes
+
+* **deps:** update all non-major dependencies ([#96](https://github.com/jr200-labs/xstate-duckdb/issues/96)) ([ac7785d](https://github.com/jr200-labs/xstate-duckdb/commit/ac7785dda3e4e569abebeabb7e970b1c8ea743c9))
+
 ## [1.5.0](https://github.com/jr200-labs/xstate-duckdb/compare/v1.4.0...v1.5.0) (2026-07-12)
 
 
