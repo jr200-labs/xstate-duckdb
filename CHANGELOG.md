@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.5.2](https://github.com/jr200-labs/xstate-duckdb/compare/v1.5.1...v1.5.2) (2026-07-16)
+
+
+### Bug Fixes
+
+* **deps:** update pnpm to v11.13.1 ([#98](https://github.com/jr200-labs/xstate-duckdb/issues/98)) ([2a25018](https://github.com/jr200-labs/xstate-duckdb/commit/2a250182f8e0b7dad87f3b1fba04a17e3b0686a9))
+
 ## [1.5.1](https://github.com/jr200-labs/xstate-duckdb/compare/v1.5.0...v1.5.1) (2026-07-15)
 
 
