@@ -13,9 +13,7 @@ const mockConnect = vi.fn().mockResolvedValue({
 })
 
 vi.mock('pako', () => ({
-  default: {
-    inflate: vi.fn((data: Uint8Array) => data),
-  },
+  inflate: vi.fn((data: Uint8Array) => data),
 }))
 
 // Mock window.atob for b64ipc decoding
@@ -221,7 +219,7 @@ describe('loadTableIntoDuckDb', () => {
       actor.start()
     })
 
-    const pako = (await import('pako')).default
+    const pako = await import('pako')
     expect(pako.inflate).toHaveBeenCalled()
   })
 
