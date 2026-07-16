@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.5.3](https://github.com/jr200-labs/xstate-duckdb/compare/v1.5.2...v1.5.3) (2026-07-16)
+
+
+### Bug Fixes
+
+* support pako 3 ESM exports ([#100](https://github.com/jr200-labs/xstate-duckdb/issues/100)) ([4ef325d](https://github.com/jr200-labs/xstate-duckdb/commit/4ef325dcb215626679b10f34425eadf36e277655))
+
 ## [1.5.2](https://github.com/jr200-labs/xstate-duckdb/compare/v1.5.1...v1.5.2) (2026-07-16)
 
 
