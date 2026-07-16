@@ -1,7 +1,7 @@
 import { fromPromise } from 'xstate/actors'
 import { JSONObject, TableDefinition, LoadedTableEntry } from '../lib/types'
 import { AsyncDuckDBConnection } from '@duckdb/duckdb-wasm'
-import pako from 'pako'
+import * as pako from 'pako'
 import { withSpan } from '../telemetry'
 import { byteLength, DuckDbLoadMetricRecord } from '../loadMetrics'
 
