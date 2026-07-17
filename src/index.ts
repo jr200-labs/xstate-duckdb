@@ -30,3 +30,17 @@ export {
 } from './loadMetrics'
 
 export type DuckDbCatalogSnapshot = SnapshotFrom<typeof dbCatalogLogic>
+
+export {
+  createOptimisticOperationAckSql,
+  createOptimisticOperationBeginSql,
+  createOptimisticOperationReconcileSql,
+  createOptimisticOperationRejectSql,
+  createOptimisticOperationsTableSql,
+  createOptimisticOperationUnknownSql,
+  createOptimisticOverlayViewSql,
+  executeOptimisticOperation,
+  type OptimisticFieldMapping,
+  type OptimisticOperationAction,
+  type OptimisticOperationField,
+} from './optimisticOperations'
