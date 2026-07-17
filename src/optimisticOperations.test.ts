@@ -20,6 +20,21 @@ const fields = [
     fieldPath: 'amount',
     metadataJsonPath: '$.amount.change_set_id',
   },
+  {
+    column: 'service_date',
+    fieldPath: 'service_date',
+    metadataJsonPath: '$.service_date.change_set_id',
+  },
+  {
+    column: 'observed_at',
+    fieldPath: 'observed_at',
+    metadataJsonPath: '$.observed_at.change_set_id',
+  },
+  {
+    column: 'enabled',
+    fieldPath: 'enabled',
+    metadataJsonPath: '$.enabled.change_set_id',
+  },
 ]
 
 describe('optimistic DuckDB projection', () => {
@@ -38,9 +53,12 @@ describe('optimistic DuckDB projection', () => {
     const connection = db.connect()
     try {
       connection.query(`CREATE TABLE source (
-        entity_id VARCHAR, classification VARCHAR, amount DOUBLE, override_metadata_json VARCHAR
+        entity_id VARCHAR, classification VARCHAR, amount DOUBLE, service_date DATE,
+        observed_at TIMESTAMP, enabled BOOLEAN, override_metadata_json VARCHAR
       )`)
-      connection.query(`INSERT INTO source VALUES ('trade-1', 'Expected', 10, '{}')`)
+      connection.query(
+        `INSERT INTO source VALUES ('trade-1', 'Expected', 10, DATE '2026-07-01', TIMESTAMP '2026-07-01 01:02:03', false, '{}')`,
+      )
       connection.query(createOptimisticOperationsTableSql())
       connection.query(
         createOptimisticOperationBeginSql({
@@ -49,6 +67,9 @@ describe('optimistic DuckDB projection', () => {
           fields: [
             { fieldPath: 'classification', value: 'Available' },
             { fieldPath: 'amount', value: 12.5 },
+            { fieldPath: 'service_date', value: '2026-07-17' },
+            { fieldPath: 'observed_at', value: '2026-07-17T12:34:56' },
+            { fieldPath: 'enabled', value: true },
           ],
         }),
       )
@@ -67,6 +88,23 @@ describe('optimistic DuckDB projection', () => {
         amount: 12.5,
         classification: 'Available',
       })
+      expect(
+        connection
+          .query(
+            `SELECT typeof(service_date) AS date_type, cast(service_date AS VARCHAR) AS service_date,
+            typeof(observed_at) AS timestamp_type, cast(observed_at AS VARCHAR) AS observed_at,
+            typeof(enabled) AS boolean_type, enabled FROM effective`,
+          )
+          .toArray()[0]
+          ?.toJSON(),
+      ).toEqual({
+        boolean_type: 'BOOLEAN',
+        date_type: 'DATE',
+        enabled: true,
+        observed_at: '2026-07-17 12:34:56',
+        service_date: '2026-07-17',
+        timestamp_type: 'TIMESTAMP',
+      })
 
       connection.query(
         createOptimisticOperationAckSql({
@@ -75,6 +113,9 @@ describe('optimistic DuckDB projection', () => {
           operations: [
             { fieldPath: 'classification', operationId: 'op-1' },
             { fieldPath: 'amount', operationId: 'op-2' },
+            { fieldPath: 'service_date', operationId: 'op-3' },
+            { fieldPath: 'observed_at', operationId: 'op-4' },
+            { fieldPath: 'enabled', operationId: 'op-5' },
           ],
         }),
       )
@@ -85,7 +126,8 @@ describe('optimistic DuckDB projection', () => {
       })
 
       connection.query(`UPDATE source SET classification = 'Available', amount = 12.5,
-        override_metadata_json = '{"classification":{"change_set_id":"change-1"},"amount":{"change_set_id":"change-1"}}'`)
+        service_date = DATE '2026-07-17', observed_at = TIMESTAMP '2026-07-17 12:34:56', enabled = true,
+        override_metadata_json = '{"classification":{"change_set_id":"change-1"},"amount":{"change_set_id":"change-1"},"service_date":{"change_set_id":"change-1"},"observed_at":{"change_set_id":"change-1"},"enabled":{"change_set_id":"change-1"}}'`)
       connection.query(
         createOptimisticOperationReconcileSql({
           entityColumn: 'entity_id',
