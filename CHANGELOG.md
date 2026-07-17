@@ -1,5 +1,17 @@
 # Changelog
 
+## [1.7.0](https://github.com/jr200-labs/xstate-duckdb/compare/v1.6.0...v1.7.0) (2026-07-17)
+
+
+### Features
+
+* add optimistic operation telemetry ([#107](https://github.com/jr200-labs/xstate-duckdb/issues/107)) ([af45124](https://github.com/jr200-labs/xstate-duckdb/commit/af451247b37ea91a99d59f32d693361271a2b0b7))
+
+
+### Tests
+
+* **projections:** cover native scalar types ([#105](https://github.com/jr200-labs/xstate-duckdb/issues/105)) ([751921e](https://github.com/jr200-labs/xstate-duckdb/commit/751921e18f827638dbb7ec43561027dcfd821259))
+
 ## [1.6.0](https://github.com/jr200-labs/xstate-duckdb/compare/v1.5.3...v1.6.0) (2026-07-17)
 
 
