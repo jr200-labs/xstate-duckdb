@@ -1,5 +1,7 @@
 import type { AsyncDuckDBConnection } from '@duckdb/duckdb-wasm'
-import { withSpan } from './telemetry'
+import { context as otelContext, SpanStatusCode } from '@opentelemetry/api'
+import { SeverityNumber } from '@opentelemetry/api-logs'
+import { getLogger, getMeter, getTracer } from './telemetry'
 
 export type OptimisticOperationAction = 'ack' | 'begin' | 'reconcile' | 'reject' | 'unknown'
 
@@ -154,15 +156,39 @@ export function executeOptimisticOperation(
   action: OptimisticOperationAction,
   sql: string,
 ): Promise<void> {
-  return Promise.resolve(
-    withSpan(
-      'xstate.duckdb.optimistic_operation',
-      'xstate.duckdb.error',
-      { 'operation.action': action },
-      async () => {
+  return getTracer().startActiveSpan(
+    'xstate.duckdb.optimistic_operation',
+    { attributes: { 'operation.action': action } },
+    async (span) => {
+      const started = performance.now()
+      let outcome = 'accepted'
+      try {
         await connection.query(sql)
-      },
-    ),
+      } catch (error) {
+        outcome = 'rejected'
+        span.setStatus({ code: SpanStatusCode.ERROR, message: 'optimistic operation failed' })
+        span.setAttribute('error.type', error instanceof Error ? error.name : 'unknown')
+        span.addEvent('xstate.duckdb.error')
+        throw error
+      } finally {
+        const duration = performance.now() - started
+        const attributes = { 'operation.action': action, 'operation.outcome': outcome }
+        span.setAttribute('operation.outcome', outcome)
+        getMeter().createCounter('xstate.duckdb.optimistic.operation.count').add(1, attributes)
+        getMeter()
+          .createHistogram('xstate.duckdb.optimistic.operation.duration', { unit: 'ms' })
+          .record(duration, attributes)
+        getLogger().emit({
+          eventName: 'xstate.duckdb.optimistic_operation',
+          severityNumber: outcome === 'accepted' ? SeverityNumber.INFO : SeverityNumber.ERROR,
+          severityText: outcome === 'accepted' ? 'INFO' : 'ERROR',
+          body: 'Optimistic DuckDB operation completed',
+          attributes: { ...attributes, 'duration.ms': duration },
+          context: otelContext.active(),
+        })
+        span.end()
+      }
+    },
   )
 }
 

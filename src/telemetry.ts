@@ -8,8 +8,10 @@
 // boundary to propagate through — DuckDB-WASM runs in the same JS VM — so we
 // only emit spans and do not inject/extract W3C trace context headers.
 
-import type { Span, Tracer } from '@opentelemetry/api'
-import { context as otelContext, SpanStatusCode, trace } from '@opentelemetry/api'
+import type { Meter, Span, Tracer } from '@opentelemetry/api'
+import { context as otelContext, metrics, SpanStatusCode, trace } from '@opentelemetry/api'
+import type { Logger } from '@opentelemetry/api-logs'
+import { logs } from '@opentelemetry/api-logs'
 import pkg from '../package.json' with { type: 'json' }
 
 const TRACER_NAME = '@jr200-labs/xstate-duckdb'
@@ -19,6 +21,14 @@ const TRACER_NAME = '@jr200-labs/xstate-duckdb'
 // would pin the delegate to a retired provider and silently lose spans.
 export function getTracer(): Tracer {
   return trace.getTracer(TRACER_NAME, pkg.version)
+}
+
+export function getMeter(): Meter {
+  return metrics.getMeter(TRACER_NAME, pkg.version)
+}
+
+export function getLogger(): Logger {
+  return logs.getLogger(TRACER_NAME, pkg.version)
 }
 
 // Truncate the stack trace before attaching it to a span event. Some backends
