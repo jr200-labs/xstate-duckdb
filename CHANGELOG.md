@@ -1,5 +1,17 @@
 # Changelog
 
+## [1.6.0](https://github.com/jr200-labs/xstate-duckdb/compare/v1.5.3...v1.6.0) (2026-07-17)
+
+
+### Features
+
+* **projections:** add optimistic operation lifecycle ([#103](https://github.com/jr200-labs/xstate-duckdb/issues/103)) ([8482781](https://github.com/jr200-labs/xstate-duckdb/commit/8482781f6143d8b672e49c6baed1ef603989a28d))
+
+
+### Bug Fixes
+
+* **deps:** update dependency vite to ^8.1.5 ([#102](https://github.com/jr200-labs/xstate-duckdb/issues/102)) ([cc89bb7](https://github.com/jr200-labs/xstate-duckdb/commit/cc89bb72922adb2f824581f849a93800853dfc7c))
+
 ## [1.5.3](https://github.com/jr200-labs/xstate-duckdb/compare/v1.5.2...v1.5.3) (2026-07-16)
 
 
