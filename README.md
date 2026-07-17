@@ -104,7 +104,13 @@ nest correctly under any caller-provided parent span.
 | `xstate.duckdb.tx.rollback`          | `rollbackTransaction`            | —                                                                     |
 | `xstate.duckdb.load_table`           | `loadTableIntoDuckDb`            | `table.spec`, `payload.type`, `payload.compression`, `table.instance` |
 | `xstate.duckdb.prune`                | `pruneTableVersions`             | `pruned.instances`, `kept.versions`                                   |
-| `xstate.duckdb.optimistic_operation` | `executeOptimisticOperation`     | `operation.action`                                                    |
+| `xstate.duckdb.optimistic_operation` | `executeOptimisticOperation`     | `operation.action`, `operation.outcome`                               |
+
+Optimistic operations also emit the low-cardinality counter
+`xstate.duckdb.optimistic.operation.count`, the millisecond histogram
+`xstate.duckdb.optimistic.operation.duration`, and a trace-correlated structured
+log for each accepted or rejected local operation. SQL and field values are
+never included.
 
 All error paths record exceptions on the active span, set span status to
 `ERROR`, and emit an `xstate.duckdb.error` event with a truncated stack.
