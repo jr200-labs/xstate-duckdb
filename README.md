@@ -12,6 +12,7 @@ A state machine for managing DuckDB operations in web applications. This library
 - **Multiple Data Formats**: Support for Arrow IPC and JSON data formats
 - **Compression**: Built-in support for data compression (zlib)
 - **Real-time Updates**: Subscription-based table change notifications
+- **Optimistic Projections**: Typed local operations over authoritative DuckDB views with acknowledgement and reconciliation
 
 ## Installation
 
@@ -93,16 +94,17 @@ nest correctly under any caller-provided parent span.
 
 ### Emitted spans
 
-| Span name                   | Emitted by                       | Attributes                                                            |
-| --------------------------- | -------------------------------- | --------------------------------------------------------------------- |
-| `xstate.duckdb.init`        | `initDuckDb`                     | `duckdb.version`                                                      |
-| `xstate.duckdb.close`       | `closeDuckDb`                    | —                                                                     |
-| `xstate.duckdb.query`       | `duckdbRunQuery` / `queryDuckDb` | `query.description`, `result.type`, `result.row_count`                |
-| `xstate.duckdb.tx.begin`    | `beginTransaction`               | —                                                                     |
-| `xstate.duckdb.tx.commit`   | `commitTransaction`              | —                                                                     |
-| `xstate.duckdb.tx.rollback` | `rollbackTransaction`            | —                                                                     |
-| `xstate.duckdb.load_table`  | `loadTableIntoDuckDb`            | `table.spec`, `payload.type`, `payload.compression`, `table.instance` |
-| `xstate.duckdb.prune`       | `pruneTableVersions`             | `pruned.instances`, `kept.versions`                                   |
+| Span name                            | Emitted by                       | Attributes                                                            |
+| ------------------------------------ | -------------------------------- | --------------------------------------------------------------------- |
+| `xstate.duckdb.init`                 | `initDuckDb`                     | `duckdb.version`                                                      |
+| `xstate.duckdb.close`                | `closeDuckDb`                    | —                                                                     |
+| `xstate.duckdb.query`                | `duckdbRunQuery` / `queryDuckDb` | `query.description`, `result.type`, `result.row_count`                |
+| `xstate.duckdb.tx.begin`             | `beginTransaction`               | —                                                                     |
+| `xstate.duckdb.tx.commit`            | `commitTransaction`              | —                                                                     |
+| `xstate.duckdb.tx.rollback`          | `rollbackTransaction`            | —                                                                     |
+| `xstate.duckdb.load_table`           | `loadTableIntoDuckDb`            | `table.spec`, `payload.type`, `payload.compression`, `table.instance` |
+| `xstate.duckdb.prune`                | `pruneTableVersions`             | `pruned.instances`, `kept.versions`                                   |
+| `xstate.duckdb.optimistic_operation` | `executeOptimisticOperation`     | `operation.action`                                                    |
 
 All error paths record exceptions on the active span, set span status to
 `ERROR`, and emit an `xstate.duckdb.error` event with a truncated stack.
@@ -120,9 +122,7 @@ import { W3CTraceContextPropagator } from '@opentelemetry/core'
 import { BasicTracerProvider, SimpleSpanProcessor } from '@opentelemetry/sdk-trace-base'
 
 const provider = new BasicTracerProvider({
-  spanProcessors: [
-    /* your exporter */
-  ],
+  spanProcessors: [/* your exporter */],
 })
 trace.setGlobalTracerProvider(provider)
 propagation.setGlobalPropagator(new W3CTraceContextPropagator())
