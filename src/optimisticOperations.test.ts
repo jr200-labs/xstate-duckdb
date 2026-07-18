@@ -7,6 +7,7 @@ import {
   createOptimisticOperationReconcileSql,
   createOptimisticOperationsTableSql,
   createOptimisticOverlayViewSql,
+  hasOptimisticChangeSet,
   rebuildOptimisticOverlayView,
 } from './optimisticOperations'
 
@@ -169,10 +170,17 @@ describe('optimistic DuckDB projection', () => {
       connection.query(createOptimisticOperationsTableSql())
       connection.query(
         createOptimisticOperationBeginSql({
-          changeSetId: 'change-1',
+          changeSetId: "change-'1",
           entityId: 'trade-1',
           fields: [{ fieldPath: 'amount', value: 12.5 }],
         }),
+      )
+
+      await expect(hasOptimisticChangeSet(connection, { changeSetId: "change-'1" })).resolves.toBe(
+        true,
+      )
+      await expect(hasOptimisticChangeSet(connection, { changeSetId: 'missing' })).resolves.toBe(
+        false,
       )
 
       await rebuildOptimisticOverlayView(connection, {
@@ -182,7 +190,9 @@ describe('optimistic DuckDB projection', () => {
         viewName: 'sparse_effective',
       })
 
-      expect(connection.query(`SELECT amount FROM sparse_effective`).toArray()[0]?.toJSON()).toEqual({
+      expect(
+        connection.query(`SELECT amount FROM sparse_effective`).toArray()[0]?.toJSON(),
+      ).toEqual({
         amount: 12.5,
       })
     } finally {
