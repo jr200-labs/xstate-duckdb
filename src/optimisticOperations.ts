@@ -2,7 +2,8 @@ import { context as otelContext, SpanStatusCode } from '@opentelemetry/api'
 import { SeverityNumber } from '@opentelemetry/api-logs'
 import { getLogger, getMeter, getTracer } from './telemetry'
 
-export type OptimisticOperationAction = 'ack' | 'begin' | 'overlay' | 'reconcile' | 'reject' | 'unknown'
+export type OptimisticOperationAction =
+  'ack' | 'begin' | 'overlay' | 'reconcile' | 'reject' | 'unknown'
 
 export interface OptimisticOperationField {
   fieldPath: string
@@ -86,6 +87,16 @@ export function createOptimisticOperationRejectSql(
   return `DELETE FROM ${identifier(tableName)} WHERE change_set_id = ${string(changeSetId)};`
 }
 
+export async function hasOptimisticChangeSet(
+  connection: DuckDbQueryConnection,
+  args: { changeSetId: string; tableName?: string },
+): Promise<boolean> {
+  const result = (await connection.query(
+    `SELECT count(*) > 0 AS matched FROM ${identifier(args.tableName ?? DEFAULT_TABLE)} WHERE change_set_id = ${string(args.changeSetId)};`,
+  )) as { toArray(): Array<{ toJSON(): { matched?: unknown } }> }
+  return result.toArray()[0]?.toJSON().matched === true
+}
+
 export function createOptimisticOverlayViewSql(args: {
   entityColumn: string
   fields: OptimisticFieldMapping[]
@@ -153,9 +164,7 @@ export async function rebuildOptimisticOverlayView(
   const rows = (await connection.query(`DESCRIBE ${source}`)) as {
     toArray(): Array<{ toJSON(): { column_name?: unknown } }>
   }
-  const columns = new Set(
-    rows.toArray().map((row) => String(row.toJSON().column_name)),
-  )
+  const columns = new Set(rows.toArray().map((row) => String(row.toJSON().column_name)))
   const fields = args.fields.filter((field) => columns.has(field.column))
   await executeOptimisticOperation(
     connection,
