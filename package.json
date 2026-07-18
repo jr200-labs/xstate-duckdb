@@ -1,6 +1,6 @@
 {
   "name": "@jr200-labs/xstate-duckdb",
-  "version": "1.7.0",
+  "version": "1.7.1",
   "description": "XState machine for DuckDB",
   "license": "MIT",
   "author": "Jayshan Raghunandan",
