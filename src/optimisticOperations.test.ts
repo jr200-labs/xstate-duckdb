@@ -7,6 +7,7 @@ import {
   createOptimisticOperationReconcileSql,
   createOptimisticOperationsTableSql,
   createOptimisticOverlayViewSql,
+  rebuildOptimisticOverlayView,
 } from './optimisticOperations'
 
 const fields = [
@@ -143,6 +144,46 @@ describe('optimistic DuckDB projection', () => {
           ?.toJSON(),
       ).toEqual({
         count: 0n,
+      })
+    } finally {
+      connection.close()
+    }
+  })
+
+  it('skips mappings for optional columns absent from an Arrow snapshot', async () => {
+    const require = createRequire(import.meta.url)
+    const db = await createDuckDB(
+      {
+        mvp: {
+          mainModule: require.resolve('@duckdb/duckdb-wasm/dist/duckdb-mvp.wasm'),
+          mainWorker: '',
+        },
+      },
+      new VoidLogger(),
+      NODE_RUNTIME,
+    )
+    const connection = db.connect()
+    try {
+      connection.query(`CREATE TABLE sparse_source (entity_id VARCHAR, amount DOUBLE)`)
+      connection.query(`INSERT INTO sparse_source VALUES ('trade-1', 10)`)
+      connection.query(createOptimisticOperationsTableSql())
+      connection.query(
+        createOptimisticOperationBeginSql({
+          changeSetId: 'change-1',
+          entityId: 'trade-1',
+          fields: [{ fieldPath: 'amount', value: 12.5 }],
+        }),
+      )
+
+      await rebuildOptimisticOverlayView(connection, {
+        entityColumn: 'entity_id',
+        fields,
+        sourceTable: 'sparse_source',
+        viewName: 'sparse_effective',
+      })
+
+      expect(connection.query(`SELECT amount FROM sparse_effective`).toArray()[0]?.toJSON()).toEqual({
+        amount: 12.5,
       })
     } finally {
       connection.close()

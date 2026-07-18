@@ -1,9 +1,8 @@
-import type { AsyncDuckDBConnection } from '@duckdb/duckdb-wasm'
 import { context as otelContext, SpanStatusCode } from '@opentelemetry/api'
 import { SeverityNumber } from '@opentelemetry/api-logs'
 import { getLogger, getMeter, getTracer } from './telemetry'
 
-export type OptimisticOperationAction = 'ack' | 'begin' | 'reconcile' | 'reject' | 'unknown'
+export type OptimisticOperationAction = 'ack' | 'begin' | 'overlay' | 'reconcile' | 'reject' | 'unknown'
 
 export interface OptimisticOperationField {
   fieldPath: string
@@ -18,6 +17,10 @@ export interface OptimisticFieldMapping {
 }
 
 const DEFAULT_TABLE = 'optimistic_operations'
+
+type DuckDbQueryConnection = {
+  query(sql: string): unknown | Promise<unknown>
+}
 
 export function createOptimisticOperationsTableSql(tableName = DEFAULT_TABLE): string {
   return `CREATE TABLE IF NOT EXISTS ${identifier(tableName)} (
@@ -94,6 +97,9 @@ export function createOptimisticOverlayViewSql(args: {
   const operations = identifier(args.operationsTable ?? DEFAULT_TABLE)
   const source = identifier(args.sourceTable)
   const entityColumn = identifier(args.entityColumn)
+  if (!args.fields.length) {
+    return `CREATE OR REPLACE VIEW ${identifier(args.viewName)} AS SELECT * FROM ${source};`
+  }
   const values = args.fields
     .map(
       (field, index) =>
@@ -129,6 +135,35 @@ FROM ${source} source
 LEFT JOIN local_values local ON local.entity_id = cast(source.${entityColumn} AS VARCHAR);`
 }
 
+/**
+ * Rebuild an optimistic overlay using only columns present in the current
+ * source table. Arrow snapshots may legitimately omit optional fields.
+ */
+export async function rebuildOptimisticOverlayView(
+  connection: DuckDbQueryConnection,
+  args: {
+    entityColumn: string
+    fields: OptimisticFieldMapping[]
+    operationsTable?: string
+    sourceTable: string
+    viewName: string
+  },
+): Promise<void> {
+  const source = identifier(args.sourceTable)
+  const rows = (await connection.query(`DESCRIBE ${source}`)) as {
+    toArray(): Array<{ toJSON(): { column_name?: unknown } }>
+  }
+  const columns = new Set(
+    rows.toArray().map((row) => String(row.toJSON().column_name)),
+  )
+  const fields = args.fields.filter((field) => columns.has(field.column))
+  await executeOptimisticOperation(
+    connection,
+    'overlay',
+    createOptimisticOverlayViewSql({ ...args, fields }),
+  )
+}
+
 export function createOptimisticOperationReconcileSql(args: {
   entityColumn: string
   fields: OptimisticFieldMapping[]
@@ -152,7 +187,7 @@ ${cases}
 }
 
 export function executeOptimisticOperation(
-  connection: AsyncDuckDBConnection,
+  connection: DuckDbQueryConnection,
   action: OptimisticOperationAction,
   sql: string,
 ): Promise<void> {
@@ -193,7 +228,6 @@ export function executeOptimisticOperation(
 }
 
 function validateMappings(fields: OptimisticFieldMapping[]): void {
-  if (!fields.length) throw new Error('optimistic projection requires field mappings')
   if (new Set(fields.map((field) => field.fieldPath)).size !== fields.length) {
     throw new Error('optimistic field paths must be unique')
   }

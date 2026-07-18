@@ -39,6 +39,7 @@ export {
   createOptimisticOperationsTableSql,
   createOptimisticOperationUnknownSql,
   createOptimisticOverlayViewSql,
+  rebuildOptimisticOverlayView,
   executeOptimisticOperation,
   type OptimisticFieldMapping,
   type OptimisticOperationAction,
