@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.7.1](https://github.com/jr200-labs/xstate-duckdb/compare/v1.7.0...v1.7.1) (2026-07-18)
+
+
+### Bug Fixes
+
+* tolerate sparse optimistic source schemas ([#108](https://github.com/jr200-labs/xstate-duckdb/issues/108)) ([4fd4bd0](https://github.com/jr200-labs/xstate-duckdb/commit/4fd4bd0c375de7ad885516dbf988f91fbeb22e61))
+
 ## [1.7.0](https://github.com/jr200-labs/xstate-duckdb/compare/v1.6.0...v1.7.0) (2026-07-17)
 
 
