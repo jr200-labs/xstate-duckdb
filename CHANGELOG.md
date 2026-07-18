@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.8.0](https://github.com/jr200-labs/xstate-duckdb/compare/v1.7.1...v1.8.0) (2026-07-18)
+
+
+### Features
+
+* expose optimistic change-set lookup ([#110](https://github.com/jr200-labs/xstate-duckdb/issues/110)) ([592a84f](https://github.com/jr200-labs/xstate-duckdb/commit/592a84f773fe0fec7b4e8e641fb2d98748a24e50))
+
 ## [1.7.1](https://github.com/jr200-labs/xstate-duckdb/compare/v1.7.0...v1.7.1) (2026-07-18)
 
 
