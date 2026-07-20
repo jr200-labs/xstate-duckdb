@@ -1,5 +1,17 @@
 # Changelog
 
+## [1.8.2](https://github.com/jr200-labs/xstate-duckdb/compare/v1.8.1...v1.8.2) (2026-07-20)
+
+
+### Bug Fixes
+
+* **deps:** update pnpm to v11.15.0 ([#115](https://github.com/jr200-labs/xstate-duckdb/issues/115)) ([759bbc4](https://github.com/jr200-labs/xstate-duckdb/commit/759bbc4fc9cb6dd143bb0aa8c1683e5d5bfb7b36))
+
+
+### Performance Improvements
+
+* **query:** preserve Arrow-backed result rows ([#116](https://github.com/jr200-labs/xstate-duckdb/issues/116)) ([81a1f87](https://github.com/jr200-labs/xstate-duckdb/commit/81a1f87125ac1199af2bbebd660030ba1af03fd7))
+
 ## [1.8.1](https://github.com/jr200-labs/xstate-duckdb/compare/v1.8.0...v1.8.1) (2026-07-18)
 
 
