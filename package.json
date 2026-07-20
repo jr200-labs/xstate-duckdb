@@ -41,7 +41,6 @@
     "state-machine"
   ],
   "dependencies": {
-    "duckdb-wasm-kit": "^0.1.39",
     "pako": "^3.0.1",
     "xstate": "^5.32.5"
   },

@@ -8,9 +8,6 @@ importers:
 
   .:
     dependencies:
-      duckdb-wasm-kit:
-        specifier: ^0.1.39
-        version: 0.1.39(@duckdb/duckdb-wasm@1.33.1-dev45.0)(apache-arrow@21.1.0)(react@19.2.5)
       pako:
         specifier: ^3.0.1
         version: 3.0.1
@@ -1271,13 +1268,6 @@ packages:
   dlv@1.1.3:
     resolution: {integrity: sha512-+HlytyjlPKnIG8XuRG8WvmBP8xs8P71y+SKKS6ZXWoEgLuePxtDoUEiH7WkdePWrQ5JBpE6aoVqfZfJUQkjXwA==}
 
-  duckdb-wasm-kit@0.1.39:
-    resolution: {integrity: sha512-NeMNKVV642Vc1BszC795p7sIyuD6ntkdjXHh21cgW+wnT9G6qWjv+KjMu0uMz/Y8oXv6q/I8T4JYnZ8wanbFzQ==}
-    peerDependencies:
-      '@duckdb/duckdb-wasm': '*'
-      apache-arrow: '>=15.0.0'
-      react: '>=16.8'
-
   dunder-proto@1.0.1:
     resolution: {integrity: sha512-KIN/nDJBQRcXw0MLVhZE9iQHmG68qAVIBg9CqmUYjmQIhgij9U5MFvrqkUL5FbtyyzZuOeOt0zdeRe4UY7ct+A==}
     engines: {node: '>= 0.4'}
@@ -1860,12 +1850,6 @@ packages:
 
   queue-microtask@1.2.3:
     resolution: {integrity: sha512-NuaNSa6flKT5JaSYQzJok04JzTL1CA6aGhv5rfLW3PgqA+M2ChpZQnAC8h8i4ZFkBS8X5RqkDBHA7r4hej3K9A==}
-
-  react-async-hook@4.0.0:
-    resolution: {integrity: sha512-97lgjFkOcHCTYSrsKBpsXg3iVWM0LnzedB749iP76sb3/8Ouu4nHIkCLEOrQWHVYqrYxjF05NN6GHoXWFkB3Kw==}
-    engines: {node: '>=8', npm: '>=5'}
-    peerDependencies:
-      react: '>=16.8'
 
   react-dom@19.2.5:
     resolution: {integrity: sha512-J5bAZz+DXMMwW/wV3xzKke59Af6CHY7G4uYLN1OvBcKEsWOs4pQExj86BBKamxl/Ik5bx9whOrvBlSDfWzgSag==}
@@ -3333,13 +3317,6 @@ snapshots:
 
   dlv@1.1.3: {}
 
-  duckdb-wasm-kit@0.1.39(@duckdb/duckdb-wasm@1.33.1-dev45.0)(apache-arrow@21.1.0)(react@19.2.5):
-    dependencies:
-      '@duckdb/duckdb-wasm': 1.33.1-dev45.0
-      apache-arrow: 21.1.0
-      react: 19.2.5
-      react-async-hook: 4.0.0(react@19.2.5)
-
   dunder-proto@1.0.1:
     dependencies:
       call-bind-apply-helpers: 1.0.2
@@ -3848,10 +3825,6 @@ snapshots:
       side-channel: 1.1.0
 
   queue-microtask@1.2.3: {}
-
-  react-async-hook@4.0.0(react@19.2.5):
-    dependencies:
-      react: 19.2.5
 
   react-dom@19.2.5(react@19.2.5):
     dependencies:
