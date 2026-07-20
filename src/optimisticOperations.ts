@@ -93,8 +93,8 @@ export async function hasOptimisticChangeSet(
 ): Promise<boolean> {
   const result = (await connection.query(
     `SELECT count(*) > 0 AS matched FROM ${identifier(args.tableName ?? DEFAULT_TABLE)} WHERE change_set_id = ${string(args.changeSetId)};`,
-  )) as { toArray(): Array<{ toJSON(): { matched?: unknown } }> }
-  return result.toArray()[0]?.toJSON().matched === true
+  )) as { toArray(): Array<{ matched?: unknown }> }
+  return result.toArray()[0]?.matched === true
 }
 
 export function createOptimisticOverlayViewSql(args: {
@@ -162,9 +162,9 @@ export async function rebuildOptimisticOverlayView(
 ): Promise<void> {
   const source = identifier(args.sourceTable)
   const rows = (await connection.query(`DESCRIBE ${source}`)) as {
-    toArray(): Array<{ toJSON(): { column_name?: unknown } }>
+    toArray(): Array<{ column_name?: unknown }>
   }
-  const columns = new Set(rows.toArray().map((row) => String(row.toJSON().column_name)))
+  const columns = new Set(rows.toArray().map((row) => String(row.column_name)))
   const fields = args.fields.filter((field) => columns.has(field.column))
   await executeOptimisticOperation(
     connection,
