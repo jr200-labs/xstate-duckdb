@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.8.3](https://github.com/jr200-labs/xstate-duckdb/compare/v1.8.2...v1.8.3) (2026-07-20)
+
+
+### Performance Improvements
+
+* **optimistic:** read Arrow row properties directly ([#118](https://github.com/jr200-labs/xstate-duckdb/issues/118)) ([c56f227](https://github.com/jr200-labs/xstate-duckdb/commit/c56f227cb329c68ed64c6e0391035b30fdcdf902))
+
 ## [1.8.2](https://github.com/jr200-labs/xstate-duckdb/compare/v1.8.1...v1.8.2) (2026-07-20)
 
 
