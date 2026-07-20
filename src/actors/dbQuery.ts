@@ -1,7 +1,5 @@
 import { AsyncDuckDB, AsyncDuckDBConnection } from '@duckdb/duckdb-wasm'
 import { fromPromise } from 'xstate'
-import { JSONObject } from '../lib/types'
-import { arrowToJSON } from 'duckdb-wasm-kit'
 import { Table } from 'apache-arrow'
 import {
   arrayToObjectMap,
@@ -38,12 +36,8 @@ export const queryDuckDb = fromPromise(
   },
 )
 
-type DuckDbQueryResult =
-  | Record<string, JSONObject>[]
-  | Table<any>
-  | Map<string, any>
-  | Map<string, any[]>
-  | null
+type DuckDbRows = ReturnType<Table<any>['toArray']>
+type DuckDbQueryResult = DuckDbRows | Table<any> | Map<string, any> | Map<string, any[]> | null
 
 export async function duckdbRunQuery(
   input: QueryDbParams & { connection: AsyncDuckDBConnection },
@@ -57,14 +51,10 @@ export async function duckdbRunQuery(
     },
     async (span) => {
       const sql = input.sql as string
-      const raw =
-        input.resultOptions?.type === 'arrow'
-          ? await duckDbExecuteToArrow(input.description, sql, input.connection)
-          : await duckDbExecuteToJson(input.description, sql, input.connection)
+      const table = await duckDbExecuteToArrow(input.description, sql, input.connection)
+      const raw = input.resultOptions?.type === 'arrow' ? table : (table?.toArray() ?? [])
 
-      if (Array.isArray(raw)) {
-        span.setAttribute('result.row_count', raw.length)
-      }
+      span.setAttribute('result.row_count', table?.numRows ?? 0)
 
       const result = formatResult(raw, input.resultOptions)
 
@@ -78,15 +68,15 @@ export async function duckdbRunQuery(
 }
 
 function formatResult(
-  result: Record<string, JSONObject>[] | Table<any> | undefined,
+  result: DuckDbRows | Table<any> | undefined,
   resultOptions?: ResultOptions,
-): Record<string, JSONObject>[] | Table<any> | Map<string, any> | Map<string, any[]> | any | null {
+): DuckDbRows | Table<any> | Map<string, any> | Map<string, any[]> | any | null {
   if (!resultOptions) {
     return result
   }
 
   let transformed:
-    | Record<string, JSONObject>[]
+    | DuckDbRows
     | Table<any>
     | Map<string, any>
     | Map<string, any[]>
@@ -146,19 +136,6 @@ async function duckDbExecuteToArrow(
     console.error(`duckDbError[${description}]`, error)
     return undefined
   }
-}
-
-async function duckDbExecuteToJson(
-  description: string,
-  sqlText: string,
-  connection: AsyncDuckDBConnection,
-): Promise<Record<string, JSONObject>[]> {
-  const response = await duckDbExecuteToArrow(description, sqlText, connection)
-  if (!response) {
-    return []
-  }
-  const jsonResponse = arrowToJSON(response)
-  return jsonResponse
 }
 
 export const beginTransaction = fromPromise(

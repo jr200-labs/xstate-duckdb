@@ -1,4 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
+import { Binary, Table, vectorFromArray } from 'apache-arrow'
 import { createActor } from 'xstate'
 import {
   duckdbRunQuery,
@@ -9,15 +10,14 @@ import {
   type QueryDbParams,
 } from '../../src/actors/dbQuery'
 
-// Mock duckdb-wasm-kit's arrowToJSON
-vi.mock('duckdb-wasm-kit', () => ({
-  arrowToJSON: vi.fn((table: any) => table._jsonData ?? []),
-}))
-
 // Suppress expected console.error output in error-handling tests
 vi.spyOn(console, 'error').mockImplementation(() => {})
 
-function createMockConnection(queryResult: any = { _jsonData: [] }) {
+function arrowRows(rows: any[]) {
+  return { numRows: rows.length, toArray: () => rows }
+}
+
+function createMockConnection(queryResult: any = arrowRows([])) {
   return {
     query: vi.fn().mockResolvedValue(queryResult),
   } as any
@@ -30,7 +30,7 @@ describe('duckdbRunQuery', () => {
 
   it('returns array result type as-is', async () => {
     const rows = [{ id: 1 }, { id: 2 }]
-    const conn = createMockConnection({ _jsonData: rows })
+    const conn = createMockConnection(arrowRows(rows))
 
     const result = await duckdbRunQuery({
       description: 'test',
@@ -40,11 +40,31 @@ describe('duckdbRunQuery', () => {
     })
 
     expect(result).toEqual(rows)
+    expect((result as any[])[0]).toBe(rows[0])
     expect(conn.query).toHaveBeenCalledWith('SELECT 1')
   })
 
+  it('keeps non-Arrow result rows backed by Arrow vectors', async () => {
+    const payload = Uint8Array.of(1, 2, 3)
+    const table = new Table({
+      id: vectorFromArray(['a']),
+      payload: vectorFromArray([payload], new Binary()),
+    })
+    const conn = createMockConnection(table)
+
+    const result = (await duckdbRunQuery({
+      description: 'typed rows',
+      sql: 'SELECT * FROM t',
+      resultOptions: { type: 'array' },
+      connection: conn,
+    })) as any[]
+
+    expect(result[0]?.[Symbol.toStringTag]).toBe('Row')
+    expect(result[0]?.payload).toEqual(payload)
+  })
+
   it('returns arrow result type directly from query', async () => {
-    const arrowTable = { schema: 'mock-arrow' }
+    const arrowTable = { numRows: 0, schema: 'mock-arrow' }
     const conn = createMockConnection(arrowTable)
 
     const result = await duckdbRunQuery({
@@ -62,7 +82,7 @@ describe('duckdbRunQuery', () => {
       { id: 'a', name: 'Alice' },
       { id: 'b', name: 'Bob' },
     ]
-    const conn = createMockConnection({ _jsonData: rows })
+    const conn = createMockConnection(arrowRows(rows))
 
     const result = await duckdbRunQuery({
       description: 'dict-test',
@@ -80,7 +100,7 @@ describe('duckdbRunQuery', () => {
       { k: 'x', v: 10 },
       { k: 'y', v: 20 },
     ]
-    const conn = createMockConnection({ _jsonData: rows })
+    const conn = createMockConnection(arrowRows(rows))
 
     const result = await duckdbRunQuery({
       description: 'svm-test',
@@ -99,7 +119,7 @@ describe('duckdbRunQuery', () => {
       { cat: 'a', val: 2 },
       { cat: 'b', val: 3 },
     ]
-    const conn = createMockConnection({ _jsonData: rows })
+    const conn = createMockConnection(arrowRows(rows))
 
     const result = await duckdbRunQuery({
       description: 'mm-test',
@@ -114,7 +134,7 @@ describe('duckdbRunQuery', () => {
 
   it('returns firstvalue result type', async () => {
     const rows = [{ count: 42 }]
-    const conn = createMockConnection({ _jsonData: rows })
+    const conn = createMockConnection(arrowRows(rows))
 
     const result = await duckdbRunQuery({
       description: 'fv-test',
@@ -131,7 +151,7 @@ describe('duckdbRunQuery', () => {
       { a: 1, b: 2 },
       { a: 3, b: 4 },
     ]
-    const conn = createMockConnection({ _jsonData: rows })
+    const conn = createMockConnection(arrowRows(rows))
 
     const result = await duckdbRunQuery({
       description: 'fr-test',
@@ -145,7 +165,7 @@ describe('duckdbRunQuery', () => {
 
   it('invokes callback instead of returning when callback is provided', async () => {
     const rows = [{ id: 1 }]
-    const conn = createMockConnection({ _jsonData: rows })
+    const conn = createMockConnection(arrowRows(rows))
     const callback = vi.fn()
 
     const result = await duckdbRunQuery({
@@ -162,8 +182,7 @@ describe('duckdbRunQuery', () => {
 
   it('returns empty array when connection.query returns undefined', async () => {
     const conn = createMockConnection(undefined)
-    // When arrow query returns undefined, duckDbExecuteToJson returns []
-    // For arrow type, the result is undefined itself
+    // Non-Arrow result types fall back to an empty row array.
 
     const result = await duckdbRunQuery({
       description: 'empty-test',
@@ -192,7 +211,7 @@ describe('duckdbRunQuery', () => {
   })
 
   it('throws for unsupported result type', async () => {
-    const conn = createMockConnection({ _jsonData: [] })
+    const conn = createMockConnection(arrowRows([]))
 
     await expect(
       duckdbRunQuery({
@@ -205,8 +224,7 @@ describe('duckdbRunQuery', () => {
   })
 
   it('returns empty map when query returns no rows for dictionary type', async () => {
-    // arrowToJSON mock returns [] when _jsonData is undefined
-    const conn = createMockConnection({ schema: 'not-an-array' })
+    const conn = createMockConnection(arrowRows([]))
 
     const result = await duckdbRunQuery({
       description: 'empty-dict',
@@ -243,7 +261,7 @@ describe('queryDuckDb actor', () => {
 
   it('resolves a Promise connection before running query', async () => {
     const rows = [{ id: 1 }]
-    const mockConn = createMockConnection({ _jsonData: rows })
+    const mockConn = createMockConnection(arrowRows(rows))
 
     const actor = createActor(queryDuckDb, {
       input: {
@@ -267,7 +285,7 @@ describe('queryDuckDb actor', () => {
 
   it('accepts a non-Promise connection directly', async () => {
     const rows = [{ id: 2 }]
-    const mockConn = createMockConnection({ _jsonData: rows })
+    const mockConn = createMockConnection(arrowRows(rows))
 
     const actor = createActor(queryDuckDb, {
       input: {
