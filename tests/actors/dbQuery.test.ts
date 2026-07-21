@@ -63,6 +63,24 @@ describe('duckdbRunQuery', () => {
     expect(result[0]?.payload).toEqual(payload)
   })
 
+  it('rejects duplicate fields before Arrow creates invalid row proxies', async () => {
+    const table = {
+      numRows: 1,
+      schema: { fields: [{ name: 'id' }, { name: 'id' }] },
+      toArray: vi.fn(),
+    }
+
+    await expect(
+      duckdbRunQuery({
+        description: 'duplicate fields',
+        sql: 'SELECT *',
+        resultOptions: { type: 'array' },
+        connection: createMockConnection(table),
+      }),
+    ).rejects.toThrow('Query "duplicate fields" returned duplicate Arrow fields: id')
+    expect(table.toArray).not.toHaveBeenCalled()
+  })
+
   it('returns arrow result type directly from query', async () => {
     const arrowTable = { numRows: 0, schema: 'mock-arrow' }
     const conn = createMockConnection(arrowTable)

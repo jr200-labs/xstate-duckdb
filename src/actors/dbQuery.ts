@@ -52,6 +52,7 @@ export async function duckdbRunQuery(
     async (span) => {
       const sql = input.sql as string
       const table = await duckDbExecuteToArrow(input.description, sql, input.connection)
+      if (table) assertUniqueFieldNames(table, input.description)
       const raw = input.resultOptions?.type === 'arrow' ? table : (table?.toArray() ?? [])
 
       span.setAttribute('result.row_count', table?.numRows ?? 0)
@@ -65,6 +66,14 @@ export async function duckdbRunQuery(
       return result
     },
   )
+}
+
+function assertUniqueFieldNames(table: Table<any>, description: string): void {
+  const names = table.schema?.fields?.map((field) => field.name) ?? []
+  const duplicates = [...new Set(names.filter((name, index) => names.indexOf(name) !== index))]
+  if (duplicates.length) {
+    throw new Error(`Query "${description}" returned duplicate Arrow fields: ${duplicates.join(', ')}`)
+  }
 }
 
 function formatResult(
