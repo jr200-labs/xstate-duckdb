@@ -1,5 +1,14 @@
 # Changelog
 
+## [1.8.4](https://github.com/jr200-labs/xstate-duckdb/compare/v1.8.3...v1.8.4) (2026-07-21)
+
+
+### Bug Fixes
+
+* **deps:** update all non-major dependencies ([#120](https://github.com/jr200-labs/xstate-duckdb/issues/120)) ([3084702](https://github.com/jr200-labs/xstate-duckdb/commit/3084702a21729ad6025458ed2e9187ae3c778137))
+* **deps:** update dependency jr200-labs/github-action-templates to shared-v0.1.32 ([#121](https://github.com/jr200-labs/xstate-duckdb/issues/121)) ([4ba5f47](https://github.com/jr200-labs/xstate-duckdb/commit/4ba5f47df96cf81ff320d8886c73b29c9ef54508))
+* reject duplicate Arrow fields ([#122](https://github.com/jr200-labs/xstate-duckdb/issues/122)) ([eaca125](https://github.com/jr200-labs/xstate-duckdb/commit/eaca125b29e1215b751732bc9d49a398a762111d))
+
 ## [1.8.3](https://github.com/jr200-labs/xstate-duckdb/compare/v1.8.2...v1.8.3) (2026-07-20)
 
 
