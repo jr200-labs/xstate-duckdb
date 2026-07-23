@@ -1,5 +1,15 @@
 # Changelog
 
+## [1.8.5](https://github.com/jr200-labs/xstate-duckdb/compare/v1.8.4...v1.8.5) (2026-07-23)
+
+
+### Bug Fixes
+
+* **deps:** update all non-major dependencies ([#124](https://github.com/jr200-labs/xstate-duckdb/issues/124)) ([c0370c0](https://github.com/jr200-labs/xstate-duckdb/commit/c0370c04c3301ba2a62db3ca29bedae131bb08cd))
+* **deps:** update dependency jr200-labs/github-action-templates to shared-v0.1.33 ([#125](https://github.com/jr200-labs/xstate-duckdb/issues/125)) ([32629b0](https://github.com/jr200-labs/xstate-duckdb/commit/32629b0efd33ade52f1846c2bf174a79e248b2fa))
+* **deps:** update dependency jr200-labs/github-action-templates to shared-v0.1.35 ([#128](https://github.com/jr200-labs/xstate-duckdb/issues/128)) ([4b5bd9a](https://github.com/jr200-labs/xstate-duckdb/commit/4b5bd9a83f36c20190d6a71f540004c8f8dcfa04))
+* **deps:** update pnpm to v11.16.0 ([#129](https://github.com/jr200-labs/xstate-duckdb/issues/129)) ([00928e9](https://github.com/jr200-labs/xstate-duckdb/commit/00928e965df3fe72a1136fb5c9bb1ed1df2f3d54))
+
 ## [1.8.4](https://github.com/jr200-labs/xstate-duckdb/compare/v1.8.3...v1.8.4) (2026-07-21)
 
 
