@@ -1,6 +1,6 @@
 packages:
   - '.'
   - 'examples/*'
-
 allowBuilds:
   esbuild: true
+minimumReleaseAge: 0
