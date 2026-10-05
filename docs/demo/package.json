@@ -28,7 +28,7 @@
     "@vitejs/plugin-react": "^6.1.1",
     "postcss": "^8.5.28",
     "tailwindcss": "^4.3.3",
-    "typescript": "^5.9.3",
+    "typescript": "^7.0.2",
     "vite": "^8.3.2",
     "vite-plugin-wasm": "^3.6.0",
     "@types/js-yaml": "^4.0.9"
