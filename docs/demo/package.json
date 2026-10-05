@@ -12,7 +12,7 @@
   "dependencies": {
     "@jr200-labs/xstate-duckdb": "workspace:*",
     "@xstate/react": "^6.1.0",
-    "js-yaml": "^4.3.2",
+    "js-yaml": "^5.4.2",
     "react": "^19.3.0",
     "react-dom": "^19.3.0",
     "xstate": "^5.33.2",
@@ -30,7 +30,6 @@
     "tailwindcss": "^4.3.3",
     "typescript": "^7.0.2",
     "vite": "^8.3.2",
-    "vite-plugin-wasm": "^3.6.0",
-    "@types/js-yaml": "^4.0.9"
+    "vite-plugin-wasm": "^3.6.0"
   }
 }
