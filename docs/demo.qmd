@@ -1,0 +1,23 @@
+---
+title: Live demo
+page-layout: full
+toc: false
+---
+
+Configure → Connect → Run query. DuckDB runs in your browser; reloading starts a new session. [Open full screen](demo-assets/index.html){target="_blank"}.
+
+```{=html}
+<iframe class="demo-frame" src="demo-assets/index.html" title="Interactive xstate-duckdb demo"></iframe>
+<details class="demo-help"><summary>How to use the demo</summary>
+```
+
+- **SQL query**: run SQL directly, or begin a transaction, execute, and commit or roll back. Wait for each operation to finish.
+- **Table catalog**: subscribe, then load the supplied Arrow sample. List tables to find the physical table name to query.
+- **Configuration**: edit the sample YAML before configuring. Disconnect and reset to configure again.
+- **Output / State details**: open a side panel for event history, actor context, and load metrics. Close it to give the editor more space.
+
+The compact diagram shows root transitions; the state badge includes transaction substates. DuckDB assets download from jsDelivr on connection. If an operation fails, reload to restart; see [error behavior](reference.qmd#error-behavior).
+
+```{=html}
+</details>
+```

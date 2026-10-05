@@ -234,29 +234,29 @@ importers:
         specifier: ^5.0.3
         version: 5.0.3(@opentelemetry/api@1.9.1)(@types/node@25.9.5)(@vitest/coverage-v8@5.0.3)(vite@8.3.2(@types/node@25.9.5)(jiti@1.21.7))
 
-  examples/react-test:
+  docs/demo:
     dependencies:
-      '@duckdb/duckdb-wasm-shell':
-        specifier: 1.29.1-dev132.0
-        version: 1.29.1-dev132.0
+      '@duckdb/duckdb-wasm':
+        specifier: '>=1.33.1-dev42.0 <2'
+        version: 1.33.1-dev45.0
       '@jr200-labs/xstate-duckdb':
         specifier: workspace:*
         version: link:../..
-      '@statelyai/inspect':
-        specifier: ^0.4.0
-        version: 0.4.0(ws@8.20.0)(xstate@5.33.2)
+      '@opentelemetry/api':
+        specifier: ^1.9.1
+        version: 1.9.1
+      '@opentelemetry/api-logs':
+        specifier: ^0.222.0
+        version: 0.222.0
       '@xstate/react':
         specifier: ^6.0.0
         version: 6.1.0(@types/react@19.2.14)(react@19.2.5)(xstate@5.33.2)
-      '@xterm/xterm':
-        specifier: ^5.5.0
-        version: 5.5.0
+      apache-arrow:
+        specifier: '>=21 <22'
+        version: 21.2.0
       js-yaml:
         specifier: ^4.1.0
         version: 4.1.1
-      pretty-format:
-        specifier: ^30.0.5
-        version: 30.3.0
       react:
         specifier: ^19.1.1
         version: 19.2.5
@@ -264,9 +264,12 @@ importers:
         specifier: ^19.1.1
         version: 19.2.5(react@19.2.5)
       xstate:
-        specifier: ^5.20.1
+        specifier: ^5.33.2
         version: 5.33.2
     devDependencies:
+      '@types/js-yaml':
+        specifier: ^4.0.9
+        version: 4.0.9
       '@types/react':
         specifier: ^19.1.9
         version: 19.2.14
@@ -278,10 +281,10 @@ importers:
         version: 4.7.0(supports-color@7.2.0)(vite@5.4.21(@types/node@25.9.5)(lightningcss@1.33.0))
       autoprefixer:
         specifier: ^10.4.21
-        version: 10.4.27(postcss@8.5.28)
+        version: 10.4.27(postcss@8.5.25)
       postcss:
         specifier: ^8.5.6
-        version: 8.5.28
+        version: 8.5.25
       tailwindcss:
         specifier: ^3.4.17
         version: 3.4.19
@@ -397,12 +400,6 @@ packages:
 
   '@cacheable/utils@2.5.0':
     resolution: {integrity: sha512-buipgOVDkkPXNR5+xBpDw7Zk2n1EvU7qBJCNUcL7rhQ//kfpOXPAvQ511Os0vpLYJ1pZnvudNytkQt2hst3wqA==}
-
-  '@duckdb/duckdb-wasm-shell@1.29.1-dev132.0':
-    resolution: {integrity: sha512-Jag8pWSfwvPTAvq6ysqCWduNVJSNs1KnVgKHomWPBPN1aEIx3YCfuI7UIHSA0KOFFZ8DaYNUnpP9cu8cXkqPBA==}
-
-  '@duckdb/duckdb-wasm@1.32.0':
-    resolution: {integrity: sha512-IewXTNYEjsZCPE9weUWgtjGxUlMRo7qhX0GF6tq/KjK8bnY+RAl4cyUdYUfcdzbyb4b9ZxPC+FOsCcxgaKFWMg==}
 
   '@duckdb/duckdb-wasm@1.33.1-dev45.0':
     resolution: {integrity: sha512-ETlrjhiGQzNdaOhpro/Y9u/RCcK+iyuczLy7uOn0kG5Mqlj8C+gTuhBXjs4JpK9ocdUgr3oT8zYYIbUnFD9AYA==}
@@ -603,10 +600,6 @@ packages:
   '@humanwhocodes/retry@0.4.3':
     resolution: {integrity: sha512-bV0Tgo9K4hfPCek+aMAn81RppFKv2ySDQeMoSZuvTASywNTnVJCArCZE2FWqpvIatKu7VMRLWlR1EazvVhDyhQ==}
     engines: {node: '>=18.18'}
-
-  '@jest/schemas@30.0.5':
-    resolution: {integrity: sha512-DmdYgtezMkh3cpU8/1uyXakv3tJRcmcXxBOcO0tbaozPwpmh4YMsnWrQm9ZmZMfa5ocbxzbFk6O4bDPEc/iAnA==}
-    engines: {node: ^18.14.0 || ^20.0.0 || ^22.0.0 || >=24.0.0}
 
   '@jridgewell/gen-mapping@0.3.13':
     resolution: {integrity: sha512-2kkt/7niJ6MgEPxF0bYdQ6etZaA+fQvDcLKckhy1yIQOzaoKjBBjSj63/aLVjYE3qhRt5dvM+uUyfCg6UKCBbA==}
@@ -930,14 +923,6 @@ packages:
     cpu: [x64]
     os: [win32]
 
-  '@sinclair/typebox@0.34.49':
-    resolution: {integrity: sha512-brySQQs7Jtn0joV8Xh9ZV/hZb9Ozb0pmazDIASBkYKCjXrXU3mpcFahmK/z4YDhGkQvP9mWJbVyahdtU5wQA+A==}
-
-  '@statelyai/inspect@0.4.0':
-    resolution: {integrity: sha512-VxQldRlKYcu6rzLY83RSXVwMYexkH6hNx85B89YWYyXYWtNGaWHFCwV7a/Kz8FFPeUz8EKVAnyMOg2kNpn07wQ==}
-    peerDependencies:
-      xstate: ^5.5.1
-
   '@statelyai/inspect@0.7.2':
     resolution: {integrity: sha512-axuXSEBsI8pQ89rP2DWq+kHLjABiXpe2qYDOo6+jVLJ+9NPOTjutMnmDd+XcJjn76d+RH6sfHa0XkFIYPUHDOw==}
     peerDependencies:
@@ -975,6 +960,9 @@ packages:
 
   '@types/estree@1.0.8':
     resolution: {integrity: sha512-dWHzHa2WqEXI/O1E9OjrocMTKJl2mSrEolh1Iomrv6U+JuNwaHXsXx9bLu5gG7BUWFIN0skIQJQ/L1rIex4X6w==}
+
+  '@types/js-yaml@4.0.9':
+    resolution: {integrity: sha512-k4MGaQl5TGo/iipqb2UDG2UwjXziSWkh0uysQelTlJpX1qGlpUZYm8PnO4DxG1qBomtJUdYJ6qR6xdIah10JLg==}
 
   '@types/json-schema@7.0.15':
     resolution: {integrity: sha512-5+fP8P8MFNC+AyZCDxrB2pkZFPGzqQWUzpSeuuVLvm8VMcorNYavBqoFcxK8bQz4Qsbn4oUEEem4wDLfcysGHA==}
@@ -1222,9 +1210,6 @@ packages:
       xstate:
         optional: true
 
-  '@xterm/xterm@5.5.0':
-    resolution: {integrity: sha512-hqJHYaQb5OptNunnyAnkHyM8aCjZ1MEIDTQu1iIbbTD/xops91NB5yq1ZK/dC2JDbVWtF23zUtl9JE2NqwT87A==}
-
   acorn-jsx@5.3.2:
     resolution: {integrity: sha512-rq9s+JNhf0IChjtDXxllJ7g41oZk5SlXtp0LHwyA5cejwn7vKmKp4pPri6YEePv2PU65sAsegbXtIinmDFDXgQ==}
     peerDependencies:
@@ -1241,10 +1226,6 @@ packages:
   ansi-styles@4.3.0:
     resolution: {integrity: sha512-zbB9rCJAT1rbjiVDb2hqKFHNYLxgtk8NURxZ3IZwD3F6NtxbXZQCnnSi1Lkx+IDohdPlFp222wVALIheZJQSEg==}
     engines: {node: '>=8'}
-
-  ansi-styles@5.2.0:
-    resolution: {integrity: sha512-Cxwpt2SfTzTtXcfOlzGEee8O+c+MmUgGrNiBcXnuWxuFJHe6a5Hz7qwhwe5OgaSYI0IJvkLqWX1ASG+cJOkEiA==}
-    engines: {node: '>=10'}
 
   any-promise@1.3.0:
     resolution: {integrity: sha512-7UvmKalWRt1wgjL1RrGxoSJW/0QZFIegpeGvZG9kjp8vrRu55XTHbwnqq2GpXm9uLbcuhxm3IqX9OB4MZR1b2A==}
@@ -1820,6 +1801,11 @@ packages:
   mz@2.7.0:
     resolution: {integrity: sha512-z81GNO7nnYMEhrGh9LeymoE4+Yr0Wn5McHIZMK5cfQCl+NDX08sCZgUc9/6MHni9IWuFLm1Z3HTCXu2z9fN62Q==}
 
+  nanoid@3.3.17:
+    resolution: {integrity: sha512-xQLf0A3HOMlgHq0n247/LRuAOYmB7dXJ/DvAxGvsSBij45XtBSmQycu+F8ODbHwns/XyFZagyL1+J0Offw1E0g==}
+    engines: {node: ^10 || ^12 || ^13.7 || ^14 || >=15.0.1}
+    hasBin: true
+
   nanoid@3.3.19:
     resolution: {integrity: sha512-Y2tUNy4ouw6tq5oDSKeQYGOyhkUBhNOcGV/02KC+6kd9eDGqdZd++mjMiIDilrBYvjEnCYvVtsuHCuP+okSfug==}
     engines: {node: ^10 || ^12 || ^13.7 || ^14 || >=15.0.1}
@@ -1942,6 +1928,10 @@ packages:
   postcss-value-parser@4.2.0:
     resolution: {integrity: sha512-1NNCs6uurfkVbeXG4S8JFT9t19m45ICnif8zWLd5oPSZ50QnwMfK+H3jv408d4jw/7Bttv5axS5IiHoLaVNHeQ==}
 
+  postcss@8.5.25:
+    resolution: {integrity: sha512-DTPx3RWSSnWyzLxQnlH0rJP+EW5ekl16ZU4/psbIhA0e53kJfdgaN5vKM+xP7yJtXVu+nfdVFmlgFDEKAe4Pyw==}
+    engines: {node: ^10 || ^12 || >=14}
+
   postcss@8.5.28:
     resolution: {integrity: sha512-RRuzqDtt5Y9h3quz5hWhK+TPnsmVs6WwSU6LkJMeY4HstUEDuYTG8UJSdawMRzmzAtV+KEoG8N3Qg2qLy5vM/A==}
     engines: {node: ^10 || ^12 || >=14}
@@ -1954,10 +1944,6 @@ packages:
     resolution: {integrity: sha512-Z/CJHIkdujO/OtN7nXUii0Rf3VT5SRuhjBA82Xvu2XhBUgX3nhP67T0LHceBdQLex7OOFGTox+Q5Yg8Jk2Qivg==}
     engines: {node: '>=14'}
     hasBin: true
-
-  pretty-format@30.3.0:
-    resolution: {integrity: sha512-oG4T3wCbfeuvljnyAzhBvpN45E8iOTXCU/TD3zXW80HA3dQ4ahdqMkWGiPWZvjpQwlbyHrPTWUAqUzGzv4l1JQ==}
-    engines: {node: ^18.14.0 || ^20.0.0 || ^22.0.0 || >=24.0.0}
 
   punycode@2.3.1:
     resolution: {integrity: sha512-vYt7UD1U9Wg6138shLtLOvdAu+8DsC/ilFtEVHcH+wydcSpNE20AfSOduf6MkRFahL5FY7X1oU7nKVZFtfq8Fg==}
@@ -1978,9 +1964,6 @@ packages:
     resolution: {integrity: sha512-J5bAZz+DXMMwW/wV3xzKke59Af6CHY7G4uYLN1OvBcKEsWOs4pQExj86BBKamxl/Ik5bx9whOrvBlSDfWzgSag==}
     peerDependencies:
       react: ^19.2.5
-
-  react-is@18.3.1:
-    resolution: {integrity: sha512-/LLMVyas0ljjAtoYiPqYiL8VWXzUUdThrmU5+n20DZv+a+ClRoevUzw5JxU+Ieh5/c87ytoTBV9G1FiKfNJdmg==}
 
   react-refresh@0.17.0:
     resolution: {integrity: sha512-z6F7K9bV85EfseRCp2bzrpyQ0Gkw1uLoCel9XBVWPg/TjRj94SkJzUTGfOa4bs7iJvBWtQG0Wq7wnI0syw3EBQ==}
@@ -2237,11 +2220,6 @@ packages:
   util-deprecate@1.0.2:
     resolution: {integrity: sha512-EPD5q1uXyFxJpCrLnCc1nHnq3gOa6DZBocAIiI2TaSCA7VCJ1UJDMagCzIkXNsUYfD1daK//LTEQ8xiIbrHtcw==}
 
-  uuid@9.0.1:
-    resolution: {integrity: sha512-b+1eJOlsR9K8HJpow9Ok3fiWOWSIcIzXodvv0rQjVoOVNpWMpxf1wZNpt4y9h10odCNrqnYp1OBzRktckBe3sA==}
-    deprecated: uuid@10 and below is no longer supported.  For ESM codebases, update to uuid@latest.  For CommonJS codebases, use uuid@11 (but be aware this version will likely be deprecated in 2028).
-    hasBin: true
-
   vite-plugin-wasm@3.6.0:
     resolution: {integrity: sha512-mL/QPziiIA4RAA6DkaZZzOstdwbW5jO4Vz7Zenj0wieKWBlNvIvX5L5ljum9lcUX0ShNfBgCNLKTjNkRVVqcsw==}
     peerDependencies:
@@ -2395,28 +2373,6 @@ packages:
   xstate@5.33.2:
     resolution: {integrity: sha512-8tC7yXgeCvpT8gKEeEje6ikJJG1wpnoLiXe+HfECW8m10ubMd3QxKOwWA8KxPJVBcLwfdRoMKYxIBGYKmo37/A==}
 
-  xterm-addon-fit@0.8.0:
-    resolution: {integrity: sha512-yj3Np7XlvxxhYF/EJ7p3KHaMt6OdwQ+HDu573Vx1lRXsVxOcnVJs51RgjZOouIZOczTsskaS+CpXspK81/DLqw==}
-    deprecated: This package is now deprecated. Move to @xterm/addon-fit instead.
-    peerDependencies:
-      xterm: ^5.0.0
-
-  xterm-addon-web-links@0.9.0:
-    resolution: {integrity: sha512-LIzi4jBbPlrKMZF3ihoyqayWyTXAwGfu4yprz1aK2p71e9UKXN6RRzVONR0L+Zd+Ik5tPVI9bwp9e8fDTQh49Q==}
-    deprecated: This package is now deprecated. Move to @xterm/addon-web-links instead.
-    peerDependencies:
-      xterm: ^5.0.0
-
-  xterm-addon-webgl@0.16.0:
-    resolution: {integrity: sha512-E8cq1AiqNOv0M/FghPT+zPAEnvIQRDbAbkb04rRYSxUym69elPWVJ4sv22FCLBqM/3LcrmBLl/pELnBebVFKgA==}
-    deprecated: This package is now deprecated. Move to @xterm/addon-webgl instead.
-    peerDependencies:
-      xterm: ^5.0.0
-
-  xterm@5.3.0:
-    resolution: {integrity: sha512-8QqjlekLUFTrU6x7xck1MsPzPA571K5zNqWm0M0oroYEWVOptZ0+ubQSkQ3uxIEhcIHRujJy6emDWX4A7qyFzg==}
-    deprecated: This package is now deprecated. Move to @xterm/xterm instead.
-
   yallist@3.1.1:
     resolution: {integrity: sha512-a4UGQaWPH59mOXUYnAG2ewncQS4i4F43Tv3JoAM+s2VDAmS9NsK8GpDMLrCHPksFT7h3K6TOoUNn2pb7RoXx4g==}
 
@@ -2561,18 +2517,6 @@ snapshots:
       hashery: 1.5.1
       keyv: 5.6.0
 
-  '@duckdb/duckdb-wasm-shell@1.29.1-dev132.0':
-    dependencies:
-      '@duckdb/duckdb-wasm': 1.32.0
-      xterm: 5.3.0
-      xterm-addon-fit: 0.8.0(xterm@5.3.0)
-      xterm-addon-web-links: 0.9.0(xterm@5.3.0)
-      xterm-addon-webgl: 0.16.0(xterm@5.3.0)
-
-  '@duckdb/duckdb-wasm@1.32.0':
-    dependencies:
-      apache-arrow: 17.0.0
-
   '@duckdb/duckdb-wasm@1.33.1-dev45.0':
     dependencies:
       apache-arrow: 17.0.0
@@ -2696,10 +2640,6 @@ snapshots:
   '@humanwhocodes/module-importer@1.0.1': {}
 
   '@humanwhocodes/retry@0.4.3': {}
-
-  '@jest/schemas@30.0.5':
-    dependencies:
-      '@sinclair/typebox': 0.34.49
 
   '@jridgewell/gen-mapping@0.3.13':
     dependencies:
@@ -2904,20 +2844,6 @@ snapshots:
   '@rollup/rollup-win32-x64-msvc@4.60.1':
     optional: true
 
-  '@sinclair/typebox@0.34.49': {}
-
-  '@statelyai/inspect@0.4.0(ws@8.20.0)(xstate@5.33.2)':
-    dependencies:
-      fast-safe-stringify: 2.1.1
-      isomorphic-ws: 5.0.0(ws@8.20.0)
-      partysocket: 0.0.25
-      safe-stable-stringify: 2.5.0
-      superjson: 1.13.3
-      uuid: 9.0.1
-      xstate: 5.33.2
-    transitivePeerDependencies:
-      - ws
-
   '@statelyai/inspect@0.7.2(xstate@5.33.2)':
     dependencies:
       fast-safe-stringify: 2.1.1
@@ -2970,6 +2896,8 @@ snapshots:
   '@types/esrecurse@4.3.1': {}
 
   '@types/estree@1.0.8': {}
+
+  '@types/js-yaml@4.0.9': {}
 
   '@types/json-schema@7.0.15': {}
 
@@ -3195,8 +3123,6 @@ snapshots:
     transitivePeerDependencies:
       - '@types/react'
 
-  '@xterm/xterm@5.5.0': {}
-
   acorn-jsx@5.3.2(acorn@8.16.0):
     dependencies:
       acorn: 8.16.0
@@ -3213,8 +3139,6 @@ snapshots:
   ansi-styles@4.3.0:
     dependencies:
       color-convert: 2.0.1
-
-  ansi-styles@5.2.0: {}
 
   any-promise@1.3.0: {}
 
@@ -3258,13 +3182,13 @@ snapshots:
       estree-walker: 3.0.3
       js-tokens: 10.0.0
 
-  autoprefixer@10.4.27(postcss@8.5.28):
+  autoprefixer@10.4.27(postcss@8.5.25):
     dependencies:
       browserslist: 4.28.2
       caniuse-lite: 1.0.30001787
       fraction.js: 5.3.4
       picocolors: 1.1.1
-      postcss: 8.5.28
+      postcss: 8.5.25
       postcss-value-parser: 4.2.0
 
   balanced-match@4.0.4: {}
@@ -3771,6 +3695,8 @@ snapshots:
       object-assign: 4.1.1
       thenify-all: 1.6.0
 
+  nanoid@3.3.17: {}
+
   nanoid@3.3.19: {}
 
   natural-compare@1.4.0: {}
@@ -3826,28 +3752,28 @@ snapshots:
 
   pirates@4.0.7: {}
 
-  postcss-import@15.1.0(postcss@8.5.28):
+  postcss-import@15.1.0(postcss@8.5.25):
     dependencies:
-      postcss: 8.5.28
+      postcss: 8.5.25
       postcss-value-parser: 4.2.0
       read-cache: 1.0.0
       resolve: 1.22.12
 
-  postcss-js@4.1.0(postcss@8.5.28):
+  postcss-js@4.1.0(postcss@8.5.25):
     dependencies:
       camelcase-css: 2.0.1
-      postcss: 8.5.28
+      postcss: 8.5.25
 
-  postcss-load-config@6.0.1(jiti@1.21.7)(postcss@8.5.28):
+  postcss-load-config@6.0.1(jiti@1.21.7)(postcss@8.5.25):
     dependencies:
       lilconfig: 3.1.3
     optionalDependencies:
       jiti: 1.21.7
-      postcss: 8.5.28
+      postcss: 8.5.25
 
-  postcss-nested@6.2.0(postcss@8.5.28):
+  postcss-nested@6.2.0(postcss@8.5.25):
     dependencies:
-      postcss: 8.5.28
+      postcss: 8.5.25
       postcss-selector-parser: 6.1.2
 
   postcss-selector-parser@6.1.2:
@@ -3856,6 +3782,12 @@ snapshots:
       util-deprecate: 1.0.2
 
   postcss-value-parser@4.2.0: {}
+
+  postcss@8.5.25:
+    dependencies:
+      nanoid: 3.3.17
+      picocolors: 1.1.1
+      source-map-js: 1.2.1
 
   postcss@8.5.28:
     dependencies:
@@ -3866,12 +3798,6 @@ snapshots:
   prelude-ls@1.2.1: {}
 
   prettier@3.9.9: {}
-
-  pretty-format@30.3.0:
-    dependencies:
-      '@jest/schemas': 30.0.5
-      ansi-styles: 5.2.0
-      react-is: 18.3.1
 
   punycode@2.3.1: {}
 
@@ -3889,8 +3815,6 @@ snapshots:
     dependencies:
       react: 19.2.5
       scheduler: 0.27.0
-
-  react-is@18.3.1: {}
 
   react-refresh@0.17.0: {}
 
@@ -4091,11 +4015,11 @@ snapshots:
       normalize-path: 3.0.0
       object-hash: 3.0.0
       picocolors: 1.1.1
-      postcss: 8.5.28
-      postcss-import: 15.1.0(postcss@8.5.28)
-      postcss-js: 4.1.0(postcss@8.5.28)
-      postcss-load-config: 6.0.1(jiti@1.21.7)(postcss@8.5.28)
-      postcss-nested: 6.2.0(postcss@8.5.28)
+      postcss: 8.5.25
+      postcss-import: 15.1.0(postcss@8.5.25)
+      postcss-js: 4.1.0(postcss@8.5.25)
+      postcss-load-config: 6.0.1(jiti@1.21.7)(postcss@8.5.25)
+      postcss-nested: 6.2.0(postcss@8.5.25)
       postcss-selector-parser: 6.1.2
       resolve: 1.22.12
       sucrase: 3.35.1
@@ -4204,8 +4128,6 @@ snapshots:
 
   util-deprecate@1.0.2: {}
 
-  uuid@9.0.1: {}
-
   vite-plugin-wasm@3.6.0(vite@5.4.21(@types/node@25.9.5)(lightningcss@1.33.0)):
     dependencies:
       vite: 5.4.21(@types/node@25.9.5)(lightningcss@1.33.0)
@@ -4213,7 +4135,7 @@ snapshots:
   vite@5.4.21(@types/node@25.9.5)(lightningcss@1.33.0):
     dependencies:
       esbuild: 0.21.5
-      postcss: 8.5.28
+      postcss: 8.5.25
       rollup: 4.60.1
     optionalDependencies:
       '@types/node': 25.9.5
@@ -4268,20 +4190,6 @@ snapshots:
   ws@8.20.0: {}
 
   xstate@5.33.2: {}
-
-  xterm-addon-fit@0.8.0(xterm@5.3.0):
-    dependencies:
-      xterm: 5.3.0
-
-  xterm-addon-web-links@0.9.0(xterm@5.3.0):
-    dependencies:
-      xterm: 5.3.0
-
-  xterm-addon-webgl@0.16.0(xterm@5.3.0):
-    dependencies:
-      xterm: 5.3.0
-
-  xterm@5.3.0: {}
 
   yallist@3.1.1: {}
 

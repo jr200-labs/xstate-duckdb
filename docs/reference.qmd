@@ -1,0 +1,41 @@
+---
+title: State and event reference
+---
+
+## Root lifecycle
+
+| State | Accepted lifecycle events / completion |
+|---|---|
+| `idle` | `CONFIGURE` → `configured` |
+| `configured` | `CONNECT` → `initializing`; `RESET` → `idle` |
+| `initializing` | Successful initialization → `connected` |
+| `connected` | `QUERY.EXECUTE`; `TRANSACTION.BEGIN` → `transaction.begin`; `DISCONNECT` → `disconnected` |
+| `transaction` | See substates below; completion → `connected` |
+| `disconnected` | Terminates DuckDB, then → `configured` |
+| `error` | `RESET` → `configured`; current initialization failures do not transition here |
+
+Transaction substates are `begin`, `within_transaction`, `execute`, `commit`, `rollback`, `end`, and `error`. Only `within_transaction` accepts execute, commit, and rollback events. A successful execute returns there; successful commit or rollback reaches `end` and returns the root to `connected`.
+
+`RECONNECT` and `CLOSE` exist in the exported event union but have no handlers. Use the supported disconnect/connect sequence instead.
+
+## Configuration and connection payloads
+
+`CONFIGURE` takes `config: MachineConfig`, containing `dbInitParams: DuckDBConfig | null`, `dbLogLevel: LogLevel`, and `tableDefinitions: TableDefinition[]`.
+
+`CONNECT` takes `dbProgressHandler` and `statusHandler`; both can be `null`. Status callbacks report initialization progress and readiness. The status type includes `error`, but initialization does not currently invoke that status on rejection.
+
+`QUERY.EXECUTE` and `TRANSACTION.EXECUTE` take `queryParams: QueryDbParams`. See [Queries](queries.qmd) for result options. Catalog events are forwarded to the child actor; root `snapshot.can()` for a catalog event does not guarantee the child is ready to perform that operation.
+
+## Error behavior
+
+The current machine does not provide uniform recovery. Initialization and some child actor failures can error the actor rather than reach root `error`. A transaction query/commit/rollback failure enters `transaction.error`, which has no external recovery event. Observe actor errors, use timeouts, and dispose of the database before creating a replacement actor. The demo can be restarted by reloading its frame.
+
+Catalog load callbacks have inconsistent error shapes on some paths: do not assume the first callback argument is always a successful instance name. Inspect the catalog's `error` context and validate success before querying a returned name.
+
+## Public exports
+
+- `duckdbMachine`, `DuckDbContext`, `DuckDbEvent`, `DuckDbCatalogContext`, `DuckDbCatalogEvent`, `DuckDbCatalogSnapshot`.
+- `MachineConfig`, `TableDefinition`, `LoadedTableEntry`, `InitDuckDbParams`, `DuckDbInitialistionStatus`.
+- `duckdbRunQuery`, `QueryDbParams`, `ResultOptions`.
+- Load metric helpers and types described under [Observability](observability.qmd).
+- SQL generation and execution helpers described under [Optimistic projections](optimistic.qmd).

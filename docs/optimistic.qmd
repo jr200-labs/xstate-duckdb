@@ -1,0 +1,47 @@
+---
+title: Optimistic projections
+---
+
+These optional helpers generate SQL for local changes layered over an authoritative table. They do not send requests or synchronize with a server; your application owns acknowledgement, rejection, and incoming snapshots.
+
+## Lifecycle
+
+1. `createOptimisticOperationsTableSql()` creates the operation ledger.
+2. `createOptimisticOperationBeginSql({ changeSetId, entityId, fields })` records local values in `committing` state.
+3. `createOptimisticOverlayViewSql({ entityColumn, fields, sourceTable, viewName })` creates a view that applies the latest local value per entity and field.
+4. On acknowledgement, use `createOptimisticOperationAckSql({ changeSetId, committedAt, operations })`; on an ambiguous result use `createOptimisticOperationUnknownSql(changeSetId)`; on rejection use `createOptimisticOperationRejectSql(changeSetId)`.
+5. After a new authoritative snapshot arrives, `createOptimisticOperationReconcileSql({ entityColumn, fields, metadataColumn, sourceTable })` removes local fields whose source metadata matches their change-set ID.
+
+All SQL builders return strings; execute them using a DuckDB connection. `executeOptimisticOperation(connection, action, sql)` wraps execution with telemetry. `hasOptimisticChangeSet(connection, { changeSetId })` checks whether ledger entries remain.
+
+## Example
+
+```typescript
+import {
+  createOptimisticOperationsTableSql,
+  createOptimisticOperationBeginSql,
+  rebuildOptimisticOverlayView,
+  executeOptimisticOperation,
+} from '@jr200-labs/xstate-duckdb'
+
+// connection is an existing DuckDB connection.
+await connection.query('CREATE TABLE items (id VARCHAR, amount DOUBLE)')
+await connection.query("INSERT INTO items VALUES ('item-1', 10)")
+await connection.query(createOptimisticOperationsTableSql())
+await executeOptimisticOperation(connection, 'begin',
+  createOptimisticOperationBeginSql({
+    changeSetId: 'change-1',
+    entityId: 'item-1',
+    fields: [{ fieldPath: 'amount', value: 12 }],
+  }),
+)
+await rebuildOptimisticOverlayView(connection, {
+  sourceTable: 'items',
+  viewName: 'effective_items',
+  entityColumn: 'id',
+  fields: [{ column: 'amount', fieldPath: 'amount' }],
+})
+// SELECT * FROM effective_items now returns amount = 12.
+```
+
+`rebuildOptimisticOverlayView` checks source columns and skips mappings for absent optional fields. Field mappings must have unique `fieldPath` and `column` values. Reconciliation also requires each mapping's `metadataJsonPath`. Values are JSON serializable and cast to the source column's type; explicit nulls remain null. The overlay includes `committing`, `committed`, and `unknown` changes until removed or reconciled.
