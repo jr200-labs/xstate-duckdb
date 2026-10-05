@@ -1,6 +1,6 @@
 packages:
   - '.'
-  - 'examples/*'
+  - 'docs/demo'
 allowBuilds:
   esbuild: true
 minimumReleaseAge: 0

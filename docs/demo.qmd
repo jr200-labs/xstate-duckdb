@@ -1,0 +1,21 @@
+---
+title: Live demo
+page-layout: full
+toc: false
+---
+
+Run the library directly in your browser. The database lives in this page; reloading starts a new session. DuckDB's engine downloads from jsDelivr when you connect. The diagram and controls run locally, with no external diagram service.
+
+1. Click **Configure**, then **Connect**. Wait for the active state to become `connected`.
+2. Click **Query (auto-commit)** to list the databases, or try `SELECT 42 AS answer`.
+3. Click **Subscribe**, then **Load Table** to load the supplied Arrow sample into `test_table` and see a change notification. **List Tables** shows the generated instance name to use in SQL.
+4. Try **Begin Transaction**, **Execute**, then **Commit** or **Rollback**. Wait for each operation to finish before sending the next.
+5. **Disconnect** releases the database. **Reset** returns the configured machine to `idle`.
+
+[Open the demo in its own tab](demo-assets/index.html){target="_blank"}
+
+```{=html}
+<iframe class="demo-frame" src="demo-assets/index.html" title="Interactive xstate-duckdb demo" loading="lazy"></iframe>
+```
+
+The diagram shows root lifecycle transitions and highlights the current state. The active value also shows transaction substates. Output, catalog context, and load metrics appear below the controls. If an operation fails, reload the demo to start a fresh database session; see [error behavior](reference.qmd#error-behavior).

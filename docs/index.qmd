@@ -1,0 +1,23 @@
+---
+title: "DuckDB, driven by state"
+---
+
+`@jr200-labs/xstate-duckdb` manages a browser DuckDB database with XState v5 actors. Configure a database, run SQL, coordinate transactions, and load versioned tables through typed events.
+
+[Get started](getting-started.qmd){.btn .btn-primary}
+[Try the live demo](demo.qmd){.btn .btn-outline-primary}
+
+## What it provides
+
+- A database lifecycle machine with observable connection and transaction states.
+- Queries returning Arrow tables, arrays, maps, or scalar values.
+- A table catalog with Arrow IPC loading, version retention, and subscriptions.
+- Load metrics, OpenTelemetry instrumentation, and SQL helpers for optimistic projections.
+
+## How it fits together
+
+Your application sends events to `duckdbMachine`. The root actor manages the database and transactions; its `dbCatalog` child manages table definitions, queued loads, versions, and subscriptions. DuckDB-Wasm executes SQL in a browser worker.
+
+The library does not provide a database server or durable synchronization. The demo uses an in-memory database that is recreated when the page reloads. DuckDB worker and WASM assets are fetched from jsDelivr during connection.
+
+The documentation and demo are built from the same repository revision. See the [API reference](reference.qmd) for supported events and the [live demo](demo.qmd) to watch state transitions.

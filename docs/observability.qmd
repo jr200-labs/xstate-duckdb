@@ -1,0 +1,29 @@
+---
+title: Observability
+---
+
+## Load metrics
+
+The catalog context's `loadMetrics` tracks cumulative `encodedBytes`, `decodedBytes`, and `loadedBytes`, with a `byTable` breakdown keyed by table specification name. These measure payload processing, not the live DuckDB heap size. Pruning older versions does not subtract historical load counts.
+
+Send `CATALOG.METRICS.RESET_LOADS` to reset all totals, or include `tableSpecName` to reset just one table's contribution. Exported helpers are `createEmptyDuckDbLoadMetrics`, `recordDuckDbLoadMetric`, `resetDuckDbLoadMetrics`, and `duckDbLoadMetricByteLength`. Types are `DuckDbLoadMetrics`, `DuckDbLoadMetricBucket`, and `DuckDbLoadMetricRecord`.
+
+## OpenTelemetry
+
+The consumer supplies the OpenTelemetry API and Logs API peer dependencies and configures providers and exporters appropriate for its runtime. Without registered providers, instrumentation is a no-op. The demo does not configure a telemetry exporter.
+
+| Span | Operation |
+|---|---|
+| `xstate.duckdb.init` | Engine initialization; includes `duckdb.version` |
+| `xstate.duckdb.close` | Engine termination |
+| `xstate.duckdb.query` | Query; description, result type and row count |
+| `xstate.duckdb.tx.begin` | Begin transaction |
+| `xstate.duckdb.tx.commit` | Commit transaction |
+| `xstate.duckdb.tx.rollback` | Roll back transaction |
+| `xstate.duckdb.load_table` | Load; table, payload type/compression and instance |
+| `xstate.duckdb.prune` | Version pruning |
+| `xstate.duckdb.optimistic_operation` | Local operation action and outcome |
+
+Optimistic operations also emit `xstate.duckdb.optimistic.operation.count`, `xstate.duckdb.optimistic.operation.duration` (milliseconds), and a trace-correlated structured log. Their attributes contain action and outcome, not SQL or field values.
+
+Other database operations record exceptions and an `xstate.duckdb.error` event on failure. Exception messages may contain database details; configure exporters according to your application's requirements.

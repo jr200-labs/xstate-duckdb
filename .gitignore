@@ -15,3 +15,8 @@ coverage/
 .vitest/
 .husky/_/
 .shared/
+
+# Generated documentation and demo bundles
+docs/_site/
+docs/.quarto/
+docs/demo-assets/
