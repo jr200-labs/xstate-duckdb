@@ -1,5 +1,31 @@
 # Changelog
 
+## [1.10.0](https://github.com/jr200-labs/xstate-duckdb/compare/v1.9.1...v1.10.0) (2026-10-05)
+
+
+### Features
+
+* **deps:** update dependency @vitejs/plugin-react to v6 ([#155](https://github.com/jr200-labs/xstate-duckdb/issues/155)) ([920de0a](https://github.com/jr200-labs/xstate-duckdb/commit/920de0a58a879820b9646b0e34db0389268d1bfe))
+* **deps:** update dependency js-yaml to v5 ([#156](https://github.com/jr200-labs/xstate-duckdb/issues/156)) ([f98adf4](https://github.com/jr200-labs/xstate-duckdb/commit/f98adf4bc04c9984b1ab8648e582a0cd8e333970))
+* **deps:** update dependency tailwindcss to v4 ([#157](https://github.com/jr200-labs/xstate-duckdb/issues/157)) ([af1856c](https://github.com/jr200-labs/xstate-duckdb/commit/af1856cc9f4accc27dc8dd03af186a1f4d9f6a0e))
+* **deps:** update dependency typescript to v7 ([#158](https://github.com/jr200-labs/xstate-duckdb/issues/158)) ([a239754](https://github.com/jr200-labs/xstate-duckdb/commit/a239754156a1f83406b97afe9f7b9c79c2f3e42b))
+* **deps:** update dependency vite to v8 ([#159](https://github.com/jr200-labs/xstate-duckdb/issues/159)) ([24cf0ca](https://github.com/jr200-labs/xstate-duckdb/commit/24cf0ca0080ff2f81ac4d9b7fc8f0ea305c3aefd))
+* **deps:** update pnpm to v12 ([#147](https://github.com/jr200-labs/xstate-duckdb/issues/147)) ([999ba48](https://github.com/jr200-labs/xstate-duckdb/commit/999ba48f81599083ef55622117ef0e71bdeee7fc))
+* **deps:** update vitest monorepo to v5 ([#148](https://github.com/jr200-labs/xstate-duckdb/issues/148)) ([0c5e95a](https://github.com/jr200-labs/xstate-duckdb/commit/0c5e95a5959eb8921ed1766a30b226952bc01d66))
+
+
+### Bug Fixes
+
+* **deps:** update all non-major dependencies ([#145](https://github.com/jr200-labs/xstate-duckdb/issues/145)) ([9f4bd6b](https://github.com/jr200-labs/xstate-duckdb/commit/9f4bd6bece3a71fceacb3633c87affd5986dc58c))
+* **deps:** update all non-major dependencies ([#153](https://github.com/jr200-labs/xstate-duckdb/issues/153)) ([9f83ed1](https://github.com/jr200-labs/xstate-duckdb/commit/9f83ed1092ed1900613d76695e3568a0b8e0cf17))
+* **deps:** update all non-major dependencies to ^4.1.11 ([#144](https://github.com/jr200-labs/xstate-duckdb/issues/144)) ([2939508](https://github.com/jr200-labs/xstate-duckdb/commit/2939508480a6c37adeba0fb196962ecd6e287a9c))
+* **deps:** update dependency jr200-labs/github-action-templates to shared-v0.1.38 ([#141](https://github.com/jr200-labs/xstate-duckdb/issues/141)) ([3aefb2f](https://github.com/jr200-labs/xstate-duckdb/commit/3aefb2fbad022f46ca1f978896cf25f93acffe55))
+* **deps:** update dependency jr200-labs/github-action-templates to shared-v0.1.46 ([#146](https://github.com/jr200-labs/xstate-duckdb/issues/146)) ([b921e58](https://github.com/jr200-labs/xstate-duckdb/commit/b921e5862d421724d22dab8c33b5f3aeee899166))
+* **deps:** update dependency jr200-labs/github-action-templates to shared-v0.1.54 ([#149](https://github.com/jr200-labs/xstate-duckdb/issues/149)) ([e56dc57](https://github.com/jr200-labs/xstate-duckdb/commit/e56dc57a6304a4d6ab28a4d0d3af6ceef76f44e9))
+* **deps:** update dependency jr200-labs/github-action-templates to shared-v0.1.74 ([#150](https://github.com/jr200-labs/xstate-duckdb/issues/150)) ([0448bb7](https://github.com/jr200-labs/xstate-duckdb/commit/0448bb71f9aeba37058ab8d91931f668295682f0))
+* **deps:** update dependency node to v22.23.3 ([#154](https://github.com/jr200-labs/xstate-duckdb/issues/154)) ([b86b03a](https://github.com/jr200-labs/xstate-duckdb/commit/b86b03a3d5ebe4fd3f953de28f236ab13a9ab830))
+* **deps:** update pnpm to v11.22.0 ([#142](https://github.com/jr200-labs/xstate-duckdb/issues/142)) ([f985767](https://github.com/jr200-labs/xstate-duckdb/commit/f9857674d0d19220f6f981dd3225dbcbe96de62d))
+
 ## [1.9.1](https://github.com/jr200-labs/xstate-duckdb/compare/v1.9.0...v1.9.1) (2026-08-12)
 
 
