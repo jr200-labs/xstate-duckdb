@@ -14,7 +14,7 @@ import { DisplayOutputResult } from './types'
 import { ProgressBar } from './ProgressBar'
 import payloadContent from '/payload.b64ipc_zlib.txt?raw'
 import configContent from '/config_yaml.txt?raw'
-import yaml from 'js-yaml'
+import { load } from 'js-yaml'
 import { formatValue } from '../formatValue'
 import { MachineDiagram } from './MachineDiagram'
 
@@ -64,7 +64,7 @@ export const MachineExample = () => {
 
   const handleConfigure = () => {
     try {
-      const yamlConfig = yaml.load(config) as MachineConfig
+      const yamlConfig = load(config) as MachineConfig
       const level = yamlConfig.dbLogLevel
       if (typeof level === 'string') {
         yamlConfig.dbLogLevel = LogLevel[level as keyof typeof LogLevel]
