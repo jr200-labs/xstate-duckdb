@@ -1,0 +1,6 @@
+{
+  "query": {
+    "castBigIntToDouble": true,
+    "castDecimalToDouble": true
+  }
+}

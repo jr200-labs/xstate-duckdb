@@ -1,0 +1,12 @@
+dbInitParams:
+  query:
+    castBigIntToDouble: true
+    castDecimalToDouble: true
+
+dbLogLevel: DEBUG
+
+tableDefinitions:
+  - name: test_table
+    schema: main
+    isVersioned: true
+    maxVersions: 2

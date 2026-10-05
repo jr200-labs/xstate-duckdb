@@ -1,0 +1,320 @@
+[
+  {
+    "objectID": "reference.html",
+    "href": "reference.html",
+    "title": "State and event reference",
+    "section": "",
+    "text": "State\nAccepted lifecycle events / completion\n\n\n\n\nidle\nCONFIGURE → configured\n\n\nconfigured\nCONNECT → initializing; RESET → idle\n\n\ninitializing\nSuccessful initialization → connected\n\n\nconnected\nQUERY.EXECUTE; TRANSACTION.BEGIN → transaction.begin; DISCONNECT → disconnected\n\n\ntransaction\nSee substates below; completion → connected\n\n\ndisconnected\nTerminates DuckDB, then → configured\n\n\nerror\nRESET → configured; current initialization failures do not transition here\n\n\n\nTransaction substates are begin, within_transaction, execute, commit, rollback, end, and error. Only within_transaction accepts execute, commit, and rollback events. A successful execute returns there; successful commit or rollback reaches end and returns the root to connected.\nRECONNECT and CLOSE exist in the exported event union but have no handlers. Use the supported disconnect/connect sequence instead.",
+    "crumbs": [
+      "Overview",
+      "State and event reference"
+    ]
+  },
+  {
+    "objectID": "reference.html#root-lifecycle",
+    "href": "reference.html#root-lifecycle",
+    "title": "State and event reference",
+    "section": "",
+    "text": "State\nAccepted lifecycle events / completion\n\n\n\n\nidle\nCONFIGURE → configured\n\n\nconfigured\nCONNECT → initializing; RESET → idle\n\n\ninitializing\nSuccessful initialization → connected\n\n\nconnected\nQUERY.EXECUTE; TRANSACTION.BEGIN → transaction.begin; DISCONNECT → disconnected\n\n\ntransaction\nSee substates below; completion → connected\n\n\ndisconnected\nTerminates DuckDB, then → configured\n\n\nerror\nRESET → configured; current initialization failures do not transition here\n\n\n\nTransaction substates are begin, within_transaction, execute, commit, rollback, end, and error. Only within_transaction accepts execute, commit, and rollback events. A successful execute returns there; successful commit or rollback reaches end and returns the root to connected.\nRECONNECT and CLOSE exist in the exported event union but have no handlers. Use the supported disconnect/connect sequence instead.",
+    "crumbs": [
+      "Overview",
+      "State and event reference"
+    ]
+  },
+  {
+    "objectID": "reference.html#configuration-and-connection-payloads",
+    "href": "reference.html#configuration-and-connection-payloads",
+    "title": "State and event reference",
+    "section": "Configuration and connection payloads",
+    "text": "Configuration and connection payloads\nCONFIGURE takes config: MachineConfig, containing dbInitParams: DuckDBConfig | null, dbLogLevel: LogLevel, and tableDefinitions: TableDefinition[].\nCONNECT takes dbProgressHandler and statusHandler; both can be null. Status callbacks report initialization progress and readiness. The status type includes error, but initialization does not currently invoke that status on rejection.\nQUERY.EXECUTE and TRANSACTION.EXECUTE take queryParams: QueryDbParams. See Queries for result options. Catalog events are forwarded to the child actor; root snapshot.can() for a catalog event does not guarantee the child is ready to perform that operation.",
+    "crumbs": [
+      "Overview",
+      "State and event reference"
+    ]
+  },
+  {
+    "objectID": "reference.html#error-behavior",
+    "href": "reference.html#error-behavior",
+    "title": "State and event reference",
+    "section": "Error behavior",
+    "text": "Error behavior\nThe current machine does not provide uniform recovery. Initialization and some child actor failures can error the actor rather than reach root error. A transaction query/commit/rollback failure enters transaction.error, which has no external recovery event. Observe actor errors, use timeouts, and dispose of the database before creating a replacement actor. The demo can be restarted by reloading its frame.\nCatalog load callbacks have inconsistent error shapes on some paths: do not assume the first callback argument is always a successful instance name. Inspect the catalog’s error context and validate success before querying a returned name.",
+    "crumbs": [
+      "Overview",
+      "State and event reference"
+    ]
+  },
+  {
+    "objectID": "reference.html#public-exports",
+    "href": "reference.html#public-exports",
+    "title": "State and event reference",
+    "section": "Public exports",
+    "text": "Public exports\n\nduckdbMachine, DuckDbContext, DuckDbEvent, DuckDbCatalogContext, DuckDbCatalogEvent, DuckDbCatalogSnapshot.\nMachineConfig, TableDefinition, LoadedTableEntry, InitDuckDbParams, DuckDbInitialistionStatus.\nduckdbRunQuery, QueryDbParams, ResultOptions.\nLoad metric helpers and types described under Observability.\nSQL generation and execution helpers described under Optimistic projections.",
+    "crumbs": [
+      "Overview",
+      "State and event reference"
+    ]
+  },
+  {
+    "objectID": "optimistic.html",
+    "href": "optimistic.html",
+    "title": "Optimistic projections",
+    "section": "",
+    "text": "These optional helpers generate SQL for local changes layered over an authoritative table. They do not send requests or synchronize with a server; your application owns acknowledgement, rejection, and incoming snapshots.",
+    "crumbs": [
+      "Overview",
+      "Optimistic projections"
+    ]
+  },
+  {
+    "objectID": "optimistic.html#lifecycle",
+    "href": "optimistic.html#lifecycle",
+    "title": "Optimistic projections",
+    "section": "Lifecycle",
+    "text": "Lifecycle\n\ncreateOptimisticOperationsTableSql() creates the operation ledger.\ncreateOptimisticOperationBeginSql({ changeSetId, entityId, fields }) records local values in committing state.\ncreateOptimisticOverlayViewSql({ entityColumn, fields, sourceTable, viewName }) creates a view that applies the latest local value per entity and field.\nOn acknowledgement, use createOptimisticOperationAckSql({ changeSetId, committedAt, operations }); on an ambiguous result use createOptimisticOperationUnknownSql(changeSetId); on rejection use createOptimisticOperationRejectSql(changeSetId).\nAfter a new authoritative snapshot arrives, createOptimisticOperationReconcileSql({ entityColumn, fields, metadataColumn, sourceTable }) removes local fields whose source metadata matches their change-set ID.\n\nAll SQL builders return strings; execute them using a DuckDB connection. executeOptimisticOperation(connection, action, sql) wraps execution with telemetry. hasOptimisticChangeSet(connection, { changeSetId }) checks whether ledger entries remain.",
+    "crumbs": [
+      "Overview",
+      "Optimistic projections"
+    ]
+  },
+  {
+    "objectID": "optimistic.html#example",
+    "href": "optimistic.html#example",
+    "title": "Optimistic projections",
+    "section": "Example",
+    "text": "Example\nimport {\n  createOptimisticOperationsTableSql,\n  createOptimisticOperationBeginSql,\n  rebuildOptimisticOverlayView,\n  executeOptimisticOperation,\n} from '@jr200-labs/xstate-duckdb'\n\n// connection is an existing DuckDB connection.\nawait connection.query('CREATE TABLE items (id VARCHAR, amount DOUBLE)')\nawait connection.query(\"INSERT INTO items VALUES ('item-1', 10)\")\nawait connection.query(createOptimisticOperationsTableSql())\nawait executeOptimisticOperation(connection, 'begin',\n  createOptimisticOperationBeginSql({\n    changeSetId: 'change-1',\n    entityId: 'item-1',\n    fields: [{ fieldPath: 'amount', value: 12 }],\n  }),\n)\nawait rebuildOptimisticOverlayView(connection, {\n  sourceTable: 'items',\n  viewName: 'effective_items',\n  entityColumn: 'id',\n  fields: [{ column: 'amount', fieldPath: 'amount' }],\n})\n// SELECT * FROM effective_items now returns amount = 12.\nrebuildOptimisticOverlayView checks source columns and skips mappings for absent optional fields. Field mappings must have unique fieldPath and column values. Reconciliation also requires each mapping’s metadataJsonPath. Values are JSON serializable and cast to the source column’s type; explicit nulls remain null. The overlay includes committing, committed, and unknown changes until removed or reconciled.",
+    "crumbs": [
+      "Overview",
+      "Optimistic projections"
+    ]
+  },
+  {
+    "objectID": "index.html",
+    "href": "index.html",
+    "title": "DuckDB, driven by state",
+    "section": "",
+    "text": "@jr200-labs/xstate-duckdb manages a browser DuckDB database with XState v5 actors. Configure a database, run SQL, coordinate transactions, and load versioned tables through typed events.\nGet started Try the live demo"
+  },
+  {
+    "objectID": "index.html#what-it-provides",
+    "href": "index.html#what-it-provides",
+    "title": "DuckDB, driven by state",
+    "section": "What it provides",
+    "text": "What it provides\n\nA database lifecycle machine with observable connection and transaction states.\nQueries returning Arrow tables, arrays, maps, or scalar values.\nA table catalog with Arrow IPC loading, version retention, and subscriptions.\nLoad metrics, OpenTelemetry instrumentation, and SQL helpers for optimistic projections."
+  },
+  {
+    "objectID": "index.html#how-it-fits-together",
+    "href": "index.html#how-it-fits-together",
+    "title": "DuckDB, driven by state",
+    "section": "How it fits together",
+    "text": "How it fits together\nYour application sends events to duckdbMachine. The root actor manages the database and transactions; its dbCatalog child manages table definitions, queued loads, versions, and subscriptions. DuckDB-Wasm executes SQL in a browser worker.\nThe library does not provide a database server or durable synchronization. The demo uses an in-memory database that is recreated when the page reloads. DuckDB worker and WASM assets are fetched from jsDelivr during connection.\nThe documentation and demo are built from the same repository revision. See the API reference for supported events and the live demo to watch state transitions."
+  },
+  {
+    "objectID": "demo.html",
+    "href": "demo.html",
+    "title": "Live demo",
+    "section": "",
+    "text": "Configure → Connect → Run query. DuckDB runs in your browser; reloading starts a new session. Open full screen.\n\nHow to use the demo\n\nSQL query: run SQL directly, or begin a transaction, execute, and commit or roll back. Wait for each operation to finish.\nTable catalog: subscribe, then load the supplied Arrow sample. List tables to find the physical table name to query.\nConfiguration: edit the sample YAML before configuring. Disconnect and reset to configure again.\nOutput / State details: open a side panel for event history, actor context, and load metrics. Close it to give the editor more space.\n\nThe compact diagram shows root transitions; the state badge includes transaction substates. DuckDB assets download from jsDelivr on connection. If an operation fails, reload to restart; see error behavior.",
+    "crumbs": [
+      "Overview",
+      "Live demo"
+    ]
+  },
+  {
+    "objectID": "catalog.html",
+    "href": "catalog.html",
+    "title": "Table catalog",
+    "section": "",
+    "text": "Include definitions in the root CONFIGURE event’s config.tableDefinitions:\nconst tableDefinitions = [{\n  schema: 'main',\n  name: 'measurements',\n  isVersioned: true,\n  maxVersions: 2,\n}]\nA versioned load creates a new physical table and retains up to maxVersions. Use callback or subscription instance names when querying; the logical specification name is not the versioned physical name. Loads are queued and processed by the catalog actor.",
+    "crumbs": [
+      "Overview",
+      "Table catalog"
+    ]
+  },
+  {
+    "objectID": "catalog.html#define-tables-before-connecting",
+    "href": "catalog.html#define-tables-before-connecting",
+    "title": "Table catalog",
+    "section": "",
+    "text": "Include definitions in the root CONFIGURE event’s config.tableDefinitions:\nconst tableDefinitions = [{\n  schema: 'main',\n  name: 'measurements',\n  isVersioned: true,\n  maxVersions: 2,\n}]\nA versioned load creates a new physical table and retains up to maxVersions. Use callback or subscription instance names when querying; the logical specification name is not the versioned physical name. Loads are queued and processed by the catalog actor.",
+    "crumbs": [
+      "Overview",
+      "Table catalog"
+    ]
+  },
+  {
+    "objectID": "catalog.html#load-data",
+    "href": "catalog.html#load-data",
+    "title": "Table catalog",
+    "section": "Load data",
+    "text": "Load data\nAfter connecting, send a data object inside CATALOG.LOAD_TABLE:\ndatabase.send({\n  type: 'CATALOG.LOAD_TABLE',\n  data: {\n    tableSpecName: 'measurements',\n    tablePayload: compressedArrowBase64,\n    payloadType: 'b64ipc',\n    payloadCompression: 'zlib',\n    callback: (instance, error) =&gt; console.log(instance, error),\n  },\n})\nPass a base64 Arrow IPC string and set payloadCompression to 'zlib' or 'none' to match its encoding. The demo includes a compressed Arrow sample.\npayloadType: 'json' is present in the public type, but its current loader only records metrics and does not insert data into DuckDB. Use Arrow IPC for actual table loading. The demo disables JSON loading until the library implements it.",
+    "crumbs": [
+      "Overview",
+      "Table catalog"
+    ]
+  },
+  {
+    "objectID": "catalog.html#subscribe-to-loaded-versions",
+    "href": "catalog.html#subscribe-to-loaded-versions",
+    "title": "Table catalog",
+    "section": "Subscribe to loaded versions",
+    "text": "Subscribe to loaded versions\nconst subscriptionId = 'measurements-panel'\ndatabase.send({\n  type: 'CATALOG.SUBSCRIBE',\n  subscription: {\n    subscriptionUid: subscriptionId,\n    tableSpecName: 'measurements',\n    onSubscribe: (id, name) =&gt; console.log(id, name),\n    onChange: (instance, version, isVersioned) =&gt; {\n      console.log({ instance, version, isVersioned })\n    },\n  },\n})\n// Later:\ndatabase.send({ type: 'CATALOG.UNSUBSCRIBE', id: subscriptionId })\nThe subscription key is subscriptionUid, or the table specification name when omitted. Registering the same key replaces its previous subscription. The current implementation stores onSubscribe but does not invoke it; retain the key yourself. onChange reports successful loads. CATALOG.FORCE_NOTIFY with an id can notify a subscription of the latest loaded version.",
+    "crumbs": [
+      "Overview",
+      "Table catalog"
+    ]
+  },
+  {
+    "objectID": "catalog.html#inspect-the-catalog",
+    "href": "catalog.html#inspect-the-catalog",
+    "title": "Table catalog",
+    "section": "Inspect the catalog",
+    "text": "Inspect the catalog\ndatabase.send({ type: 'CATALOG.LIST_TABLES', callback: console.log })\ndatabase.send({ type: 'CATALOG.LIST_DEFINITIONS', callback: console.log })\nThe catalog snapshot is available from database.getSnapshot().children.dbCatalog. Its context contains loadedVersions, subscriptions, pendingTableLoads, loadMetrics, and error. The package exports DuckDbCatalogSnapshot for typed access.\nCATALOG.DROP_TABLE is declared as an event but its current handler does not implement removal. Do not depend on it for cleanup; disconnect to terminate the demo database, or manage physical tables explicitly using SQL and account for catalog metadata yourself.",
+    "crumbs": [
+      "Overview",
+      "Table catalog"
+    ]
+  },
+  {
+    "objectID": "getting-started.html",
+    "href": "getting-started.html",
+    "title": "Getting started",
+    "section": "",
+    "text": "Install the library and its peer dependencies in your browser application:\npnpm add @jr200-labs/xstate-duckdb xstate @duckdb/duckdb-wasm apache-arrow @opentelemetry/api @opentelemetry/api-logs\nThe current library requires DuckDB-Wasm &gt;=1.33.1-dev42.0 &lt;2, Arrow &gt;=21 &lt;22, OpenTelemetry API ^1.9.1, and OpenTelemetry Logs API ^0.221.0. For React, also install @xstate/react.",
+    "crumbs": [
+      "Overview",
+      "Getting started"
+    ]
+  },
+  {
+    "objectID": "getting-started.html#install",
+    "href": "getting-started.html#install",
+    "title": "Getting started",
+    "section": "",
+    "text": "Install the library and its peer dependencies in your browser application:\npnpm add @jr200-labs/xstate-duckdb xstate @duckdb/duckdb-wasm apache-arrow @opentelemetry/api @opentelemetry/api-logs\nThe current library requires DuckDB-Wasm &gt;=1.33.1-dev42.0 &lt;2, Arrow &gt;=21 &lt;22, OpenTelemetry API ^1.9.1, and OpenTelemetry Logs API ^0.221.0. For React, also install @xstate/react.",
+    "crumbs": [
+      "Overview",
+      "Getting started"
+    ]
+  },
+  {
+    "objectID": "getting-started.html#configure-connect-query",
+    "href": "getting-started.html#configure-connect-query",
+    "title": "Getting started",
+    "section": "Configure, connect, query",
+    "text": "Configure, connect, query\nimport { createActor, waitFor } from 'xstate'\nimport { LogLevel } from '@duckdb/duckdb-wasm'\nimport { duckdbMachine } from '@jr200-labs/xstate-duckdb'\n\nconst database = createActor(duckdbMachine)\ndatabase.subscribe({\n  next: snapshot =&gt; console.log('State:', snapshot.value),\n  error: error =&gt; console.error('Database actor failed:', error),\n})\ndatabase.start()\n\ndatabase.send({\n  type: 'CONFIGURE',\n  config: {\n    dbInitParams: null,\n    dbLogLevel: LogLevel.WARNING,\n    tableDefinitions: [],\n  },\n})\ndatabase.send({\n  type: 'CONNECT',\n  dbProgressHandler: progress =&gt; console.log(progress),\n  statusHandler: status =&gt; console.log(status),\n})\nawait waitFor(database, state =&gt; state.matches('connected'), { timeout: 60_000 })\n\ndatabase.send({\n  type: 'QUERY.EXECUTE',\n  queryParams: {\n    description: 'first-query',\n    sql: 'SELECT 42 AS answer',\n    resultOptions: { type: 'array' },\n    callback: rows =&gt; console.log(rows),\n  },\n})\nWait for connected before sending queries. Connection initialization is asynchronous and downloads DuckDB assets; your content security policy must permit the CDN and blob workers used by DuckDB-Wasm.",
+    "crumbs": [
+      "Overview",
+      "Getting started"
+    ]
+  },
+  {
+    "objectID": "getting-started.html#react",
+    "href": "getting-started.html#react",
+    "title": "Getting started",
+    "section": "React",
+    "text": "React\nUse const [snapshot, send, actor] = useActor(duckdbMachine) from @xstate/react. Send the same events as above and disable controls with snapshot.can(event). The demo shows a complete React integration, including the catalog child snapshot.",
+    "crumbs": [
+      "Overview",
+      "Getting started"
+    ]
+  },
+  {
+    "objectID": "getting-started.html#cleanup",
+    "href": "getting-started.html#cleanup",
+    "title": "Getting started",
+    "section": "Cleanup",
+    "text": "Cleanup\nWhen finished with outstanding queries and transactions, send DISCONNECT while connected. Wait for configured before stopping the actor so the asynchronous DuckDB termination can finish:\ndatabase.send({ type: 'DISCONNECT' })\nawait waitFor(database, state =&gt; state.matches('configured'))\ndatabase.stop()",
+    "crumbs": [
+      "Overview",
+      "Getting started"
+    ]
+  },
+  {
+    "objectID": "getting-started.html#run-these-docs-locally",
+    "href": "getting-started.html#run-these-docs-locally",
+    "title": "Getting started",
+    "section": "Run these docs locally",
+    "text": "Run these docs locally\nUse Node.js 22 or newer, the pnpm version declared in package.json, and Quarto.\npnpm install --frozen-lockfile\npnpm docs:preview\nQuarto’s pre-render hook installs locked workspace dependencies, builds the library, and builds docs/demo into docs/demo-assets. Quarto copies that bundle into _site. For faster demo-only development, run pnpm demo:dev. Run pnpm docs:build for a production site.",
+    "crumbs": [
+      "Overview",
+      "Getting started"
+    ]
+  },
+  {
+    "objectID": "observability.html",
+    "href": "observability.html",
+    "title": "Observability",
+    "section": "",
+    "text": "The catalog context’s loadMetrics tracks cumulative encodedBytes, decodedBytes, and loadedBytes, with a byTable breakdown keyed by table specification name. These measure payload processing, not the live DuckDB heap size. Pruning older versions does not subtract historical load counts.\nSend CATALOG.METRICS.RESET_LOADS to reset all totals, or include tableSpecName to reset just one table’s contribution. Exported helpers are createEmptyDuckDbLoadMetrics, recordDuckDbLoadMetric, resetDuckDbLoadMetrics, and duckDbLoadMetricByteLength. Types are DuckDbLoadMetrics, DuckDbLoadMetricBucket, and DuckDbLoadMetricRecord.",
+    "crumbs": [
+      "Overview",
+      "Observability"
+    ]
+  },
+  {
+    "objectID": "observability.html#load-metrics",
+    "href": "observability.html#load-metrics",
+    "title": "Observability",
+    "section": "",
+    "text": "The catalog context’s loadMetrics tracks cumulative encodedBytes, decodedBytes, and loadedBytes, with a byTable breakdown keyed by table specification name. These measure payload processing, not the live DuckDB heap size. Pruning older versions does not subtract historical load counts.\nSend CATALOG.METRICS.RESET_LOADS to reset all totals, or include tableSpecName to reset just one table’s contribution. Exported helpers are createEmptyDuckDbLoadMetrics, recordDuckDbLoadMetric, resetDuckDbLoadMetrics, and duckDbLoadMetricByteLength. Types are DuckDbLoadMetrics, DuckDbLoadMetricBucket, and DuckDbLoadMetricRecord.",
+    "crumbs": [
+      "Overview",
+      "Observability"
+    ]
+  },
+  {
+    "objectID": "observability.html#opentelemetry",
+    "href": "observability.html#opentelemetry",
+    "title": "Observability",
+    "section": "OpenTelemetry",
+    "text": "OpenTelemetry\nThe consumer supplies the OpenTelemetry API and Logs API peer dependencies and configures providers and exporters appropriate for its runtime. Without registered providers, instrumentation is a no-op. The demo does not configure a telemetry exporter.\n\n\n\n\n\n\n\nSpan\nOperation\n\n\n\n\nxstate.duckdb.init\nEngine initialization; includes duckdb.version\n\n\nxstate.duckdb.close\nEngine termination\n\n\nxstate.duckdb.query\nQuery; description, result type and row count\n\n\nxstate.duckdb.tx.begin\nBegin transaction\n\n\nxstate.duckdb.tx.commit\nCommit transaction\n\n\nxstate.duckdb.tx.rollback\nRoll back transaction\n\n\nxstate.duckdb.load_table\nLoad; table, payload type/compression and instance\n\n\nxstate.duckdb.prune\nVersion pruning\n\n\nxstate.duckdb.optimistic_operation\nLocal operation action and outcome\n\n\n\nOptimistic operations also emit xstate.duckdb.optimistic.operation.count, xstate.duckdb.optimistic.operation.duration (milliseconds), and a trace-correlated structured log. Their attributes contain action and outcome, not SQL or field values.\nOther database operations record exceptions and an xstate.duckdb.error event on failure. Exception messages may contain database details; configure exporters according to your application’s requirements.",
+    "crumbs": [
+      "Overview",
+      "Observability"
+    ]
+  },
+  {
+    "objectID": "queries.html",
+    "href": "queries.html",
+    "title": "Queries and transactions",
+    "section": "",
+    "text": "Send QUERY.EXECUTE while the root is connected. Supply queryParams with sql, description, resultOptions, and an optional callback. Each query actor acquires a connection and runs independently; do not assume two consecutive sends will finish in order.\ndatabase.send({\n  type: 'QUERY.EXECUTE',\n  queryParams: {\n    description: 'grouped-values',\n    sql: \"SELECT * FROM (VALUES ('a', 1), ('a', 2)) AS t(category, amount)\",\n    resultOptions: { type: 'multimap', key: 'category', value: 'amount' },\n    callback: result =&gt; console.log(result), // Map { 'a' =&gt; [1, 2] }\n  },\n})\n\n\n\n\n\n\n\n\n\n\nresultOptions.type\nAdditional options\nResult\n\n\n\n\narray\nNone\nArray of Arrow row objects\n\n\narrow\nNone\nApache Arrow Table\n\n\ndictionary\nkey\nMap of key to row; later duplicate keys replace earlier rows\n\n\nmultimap\nkey, optional value\nMap of key to arrays of rows, or projected values\n\n\nsinglevaluemap\nkey, value\nMap of key to one projected value\n\n\nfirstvalue\nkey\nFirst row’s named field, or null\n\n\nfirstrow\nNone\nFirst row, or null\n\n\n\nUse unique SQL aliases when joining tables: duplicate output column names are rejected. Multimap keys must be truthy; a missing key, empty string, zero, or false raises an error.",
+    "crumbs": [
+      "Overview",
+      "Queries and transactions"
+    ]
+  },
+  {
+    "objectID": "queries.html#one-shot-queries",
+    "href": "queries.html#one-shot-queries",
+    "title": "Queries and transactions",
+    "section": "",
+    "text": "Send QUERY.EXECUTE while the root is connected. Supply queryParams with sql, description, resultOptions, and an optional callback. Each query actor acquires a connection and runs independently; do not assume two consecutive sends will finish in order.\ndatabase.send({\n  type: 'QUERY.EXECUTE',\n  queryParams: {\n    description: 'grouped-values',\n    sql: \"SELECT * FROM (VALUES ('a', 1), ('a', 2)) AS t(category, amount)\",\n    resultOptions: { type: 'multimap', key: 'category', value: 'amount' },\n    callback: result =&gt; console.log(result), // Map { 'a' =&gt; [1, 2] }\n  },\n})\n\n\n\n\n\n\n\n\n\n\nresultOptions.type\nAdditional options\nResult\n\n\n\n\narray\nNone\nArray of Arrow row objects\n\n\narrow\nNone\nApache Arrow Table\n\n\ndictionary\nkey\nMap of key to row; later duplicate keys replace earlier rows\n\n\nmultimap\nkey, optional value\nMap of key to arrays of rows, or projected values\n\n\nsinglevaluemap\nkey, value\nMap of key to one projected value\n\n\nfirstvalue\nkey\nFirst row’s named field, or null\n\n\nfirstrow\nNone\nFirst row, or null\n\n\n\nUse unique SQL aliases when joining tables: duplicate output column names are rejected. Multimap keys must be truthy; a missing key, empty string, zero, or false raises an error.",
+    "crumbs": [
+      "Overview",
+      "Queries and transactions"
+    ]
+  },
+  {
+    "objectID": "queries.html#transactions",
+    "href": "queries.html#transactions",
+    "title": "Queries and transactions",
+    "section": "Transactions",
+    "text": "Transactions\nTransaction events are asynchronous. Wait for transaction.within_transaction after beginning and after every execution, then commit or roll back. The following continues with the database actor from Getting started:\nimport { waitFor } from 'xstate'\n\ndatabase.send({ type: 'TRANSACTION.BEGIN' })\nawait waitFor(database, s =&gt; s.matches({ transaction: 'within_transaction' }))\n\ndatabase.send({\n  type: 'TRANSACTION.EXECUTE',\n  queryParams: {\n    description: 'create-example',\n    sql: 'CREATE TABLE measurements (value DOUBLE)',\n    resultOptions: { type: 'array' },\n  },\n})\nawait waitFor(database, s =&gt; s.matches({ transaction: 'within_transaction' }))\n\ndatabase.send({ type: 'TRANSACTION.COMMIT' })\nawait waitFor(database, s =&gt; s.matches('connected'))\nUse TRANSACTION.ROLLBACK instead of commit to discard changes. Auto-commit queries are not accepted while the root is in a transaction. Set suitable waitFor timeouts and handle failures in production code.",
+    "crumbs": [
+      "Overview",
+      "Queries and transactions"
+    ]
+  },
+  {
+    "objectID": "queries.html#promise-based-queries",
+    "href": "queries.html#promise-based-queries",
+    "title": "Queries and transactions",
+    "section": "Promise-based queries",
+    "text": "Promise-based queries\nduckdbRunQuery also accepts an existing DuckDB connection. Without a callback it resolves to the formatted result; with a callback it returns undefined after invoking that callback. Close connections you create when finished.\nimport { duckdbRunQuery } from '@jr200-labs/xstate-duckdb'\n\nconst db = database.getSnapshot().context.duckDbHandle!\nconst connection = await db.connect()\ntry {\n  const answer = await duckdbRunQuery({\n    connection,\n    description: 'answer',\n    sql: 'SELECT 42 AS answer',\n    resultOptions: { type: 'firstvalue', key: 'answer' },\n  })\n  console.log(answer)\n} finally {\n  await connection.close()\n}",
+    "crumbs": [
+      "Overview",
+      "Queries and transactions"
+    ]
+  }
+]

@@ -1,0 +1,29 @@
+[
+  {
+    "ints": 1,
+    "strings": "a",
+    "categorical": "x",
+    "dates": "2025-08-01 20:03:20.465904",
+    "decimals": "1.100",
+    "bools": true,
+    "floats": 1.1
+  },
+  {
+    "ints": 2,
+    "strings": "b",
+    "categorical": "y",
+    "dates": "2025-09-02 20:03:20.465904",
+    "decimals": "2.220",
+    "bools": false,
+    "floats": 2.2
+  },
+  {
+    "ints": 3,
+    "strings": "c",
+    "categorical": "z",
+    "dates": "2025-10-03 20:03:20.465904",
+    "decimals": "3.333",
+    "bools": true,
+    "floats": 3.3
+  }
+]

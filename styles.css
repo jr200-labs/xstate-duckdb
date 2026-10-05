@@ -1,0 +1,19 @@
+.demo-frame {
+  display: block;
+  width: 100%;
+  height: calc(100dvh - 215px);
+  min-height: 480px;
+  border: 1px solid #dce3ec;
+  border-radius: 10px;
+}
+.demo-help {
+  margin-top: 0.5rem;
+  font-size: 0.85rem;
+}
+.demo-help summary {
+  color: #536780;
+  cursor: pointer;
+}
+.quarto-title h1 {
+  letter-spacing: -0.035em;
+}
