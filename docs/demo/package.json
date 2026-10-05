@@ -12,7 +12,7 @@
   "dependencies": {
     "@jr200-labs/xstate-duckdb": "workspace:*",
     "@xstate/react": "^6.0.0",
-    "js-yaml": "^4.1.0",
+    "js-yaml": "^5.4.2",
     "react": "^19.1.1",
     "react-dom": "^19.1.1",
     "xstate": "^5.33.2",
