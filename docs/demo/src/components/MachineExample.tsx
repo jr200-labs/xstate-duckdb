@@ -12,7 +12,6 @@ import { useActor, useSelector } from '@xstate/react'
 import { InstantiationProgress, LogLevel } from '@duckdb/duckdb-wasm'
 import { DisplayOutputResult } from './types'
 import { ProgressBar } from './ProgressBar'
-import { getButtonClasses, getTypeStyles } from './styles'
 import payloadContent from '/payload.b64ipc_zlib.txt?raw'
 import configContent from '/config_yaml.txt?raw'
 import yaml from 'js-yaml'
@@ -29,6 +28,10 @@ export const MachineExample = () => {
   const activeSubscriptions: Map<string, object> =
     dbCatalogState?.context?.subscriptions ?? new Map()
 
+  const [panel, setPanel] = useState<'query' | 'catalog' | 'configuration'>('query')
+  const [inspector, setInspector] = useState<'output' | 'state' | null>(null)
+  const [queryResult, setQueryResult] = useState<unknown>(null)
+  const [latestMessage, setLatestMessage] = useState('Configure → Connect → Run a query')
   const [query, setQuery] = useState('SELECT * FROM duckdb_databases();')
   const [outputs, setOutputs] = useState<DisplayOutputResult[]>([])
   const [config, setConfig] = useState(configContent)
@@ -47,6 +50,11 @@ export const MachineExample = () => {
       data,
       timestamp: new Date(),
     }
+    setLatestMessage(
+      type === 'error'
+        ? String(data)
+        : `${type} · ${typeof data === 'string' ? data : 'Result received'}`,
+    )
     setOutputs((prev) => [newOutput, ...prev].slice(0, 100))
   }
 
@@ -102,6 +110,7 @@ export const MachineExample = () => {
     const queryParams: QueryDbParams = {
       sql: query,
       callback: (data) => {
+        setQueryResult(data)
         addOutput('query.execute', data)
       },
       description: 'execute',
@@ -145,6 +154,7 @@ export const MachineExample = () => {
     const queryParams: QueryDbParams = {
       sql: query,
       callback: (data) => {
+        setQueryResult(data)
         addOutput('transaction.execute', data)
       },
       description: 'transaction.execute',
@@ -203,11 +213,6 @@ export const MachineExample = () => {
     }
   }
 
-  const handleDropTable = () => {
-    send({ type: 'CATALOG.DROP_TABLE', tableName })
-    addOutput('catalog.drop_table', `Drop table command sent for: ${tableName}`)
-  }
-
   const handleShowConfiguration = () => {
     send({
       type: 'CATALOG.LIST_DEFINITIONS',
@@ -217,437 +222,246 @@ export const MachineExample = () => {
     })
   }
 
+  const connected = state.matches('connected')
+  const withinTransaction = state.matches({ transaction: 'within_transaction' })
+  const canConfigure = state.matches('idle')
+  const canConnect = state.matches('configured')
+  const toggleInspector = (next: 'output' | 'state') =>
+    setInspector((current) => (current === next ? null : next))
+
   return (
-    <div className="space-y-4 bg-gray-100 p-4">
-      <MachineDiagram snapshot={state} />
-      <div className="grid grid-cols-1 xl:grid-cols-[1fr_2fr] gap-4">
-        {/* Left Panel - Output */}
-        <div className="min-w-0 bg-white shadow-lg border-r border-gray-200 p-4 flex flex-col">
-          <div className="flex items-center justify-between mb-4">
-            <h2 className="text-lg font-semibold">Output</h2>
-            <div className="flex gap-2">
-              <button onClick={clearOutput} className={getButtonClasses('clear')}>
-                Clear
-              </button>
-            </div>
-          </div>
-          <div className="bg-gray-50 border border-gray-300 rounded-md p-3 flex-1 overflow-y-auto">
-            {outputs.length === 0 ? (
-              <div className="text-gray-500 text-center py-8">No output yet...</div>
-            ) : (
-              <div className="space-y-3">
-                {outputs.map((output, index) => (
-                  <div
-                    key={index}
-                    className="bg-white rounded-lg border border-gray-200 p-3 shadow-sm"
-                  >
-                    <div className="flex items-center justify-between mb-2">
-                      <span
-                        className={`${getTypeStyles(output.type).base} text-white px-2 py-1 rounded text-xs font-medium uppercase`}
-                      >
-                        {output.type}
-                      </span>
-                      <span className="text-gray-500 text-xs">
-                        {output.timestamp.toLocaleTimeString()}
-                      </span>
-                    </div>
-                    <div className="font-mono text-sm text-gray-800 break-words">
-                      {typeof output.data === 'string' ? output.data : formatValue(output.data)}
-                    </div>
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
+    <div className="demo-app">
+      <header className="demo-toolbar">
+        <div className="connection-controls" aria-label="Database connection">
+          <button disabled={!canConfigure} onClick={handleConfigure}>
+            Configure
+          </button>
+          <button className="primary" disabled={!canConnect} onClick={handleConnect}>
+            Connect
+          </button>
+          <button disabled={!connected} onClick={handleDisconnect}>
+            Disconnect
+          </button>
+          <button disabled={!state.can({ type: 'RESET' })} onClick={handleReset}>
+            Reset
+          </button>
         </div>
-
-        {/* Middle Panel - Controls and Configuration */}
-        <div className="flex-1 flex flex-col p-4">
-          {/* 2x2 Grid Layout */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 h-full">
-            {/* Left Column - Configuration and Query stacked */}
-            <div className="flex flex-col gap-4">
-              {/* Configuration Panel */}
-              <div className="bg-white rounded-lg shadow-md p-4">
-                <h2 className="text-lg font-semibold mb-2">Configuration</h2>
-                <div className="grid grid-cols-1 gap-4">
-                  <div>
-                    <h3 className="text-sm font-medium text-gray-700 mb-2">DuckDB Configuration</h3>
-                    <textarea
-                      aria-label="DuckDB configuration"
-                      value={config}
-                      onChange={(e) => setConfig(e.target.value)}
-                      className="w-full h-48 p-2 border border-gray-300 rounded-md font-mono text-xs"
-                      placeholder="Enter configuration YAML..."
-                    />
-                  </div>
-                </div>
+        <div className="inspector-controls">
+          <button
+            aria-expanded={inspector === 'output'}
+            aria-controls="output-inspector"
+            onClick={() => toggleInspector('output')}
+          >
+            Output <span className="count">{outputs.length}</span>
+          </button>
+          <button
+            aria-expanded={inspector === 'state'}
+            aria-controls="state-inspector"
+            onClick={() => toggleInspector('state')}
+          >
+            State details
+          </button>
+        </div>
+      </header>
+      <MachineDiagram snapshot={state} />
+      <div className={`demo-workspace ${inspector ? 'with-inspector' : ''}`}>
+        <main className="demo-editor">
+          <nav className="editor-tabs" aria-label="Demo workspace">
+            {(['query', 'catalog', 'configuration'] as const).map((tab) => (
+              <button key={tab} aria-pressed={panel === tab} onClick={() => setPanel(tab)}>
+                {tab === 'query'
+                  ? 'SQL query'
+                  : tab === 'catalog'
+                    ? 'Table catalog'
+                    : 'Configuration'}
+              </button>
+            ))}
+          </nav>
+          {panel === 'query' && (
+            <section className="editor-panel query-panel" aria-label="SQL query workspace">
+              <textarea
+                aria-label="SQL query"
+                spellCheck={false}
+                value={query}
+                onChange={(e) => setQuery(e.target.value)}
+              />
+              <div className="editor-actions">
+                <button
+                  className="primary"
+                  disabled={!connected && !withinTransaction}
+                  onClick={withinTransaction ? handleTransactionExecute : handleQueryAutoCommit}
+                >
+                  {withinTransaction ? 'Execute in transaction' : 'Run query'}
+                </button>
+                <span className="action-divider" />
+                <button disabled={!connected} onClick={handleTransactionBegin}>
+                  Begin transaction
+                </button>
+                <button disabled={!withinTransaction} onClick={handleTransactionCommit}>
+                  Commit
+                </button>
+                <button disabled={!withinTransaction} onClick={handleTransactionRollback}>
+                  Rollback
+                </button>
               </div>
-
-              {/* Query Panel */}
-              <div className="bg-white rounded-lg shadow-md p-4 flex flex-col flex-1">
-                <h2 className="text-lg font-semibold mb-2">Query</h2>
-                <textarea
-                  aria-label="SQL query"
-                  value={query}
-                  onChange={(e) => setQuery(e.target.value)}
-                  className="w-full flex-1 p-2 border border-gray-300 rounded-md font-mono text-sm resize-none"
-                  placeholder="Enter your SQL query..."
-                />
-
-                <div className="mb-3 mt-4" />
-                <div className="flex flex-wrap gap-2">
-                  <button
-                    disabled={
-                      !state.can({
-                        type: 'CONFIGURE',
-                        config: {
-                          dbLogLevel: LogLevel.DEBUG,
-                          dbInitParams: {},
-                          tableDefinitions: [],
-                        },
-                      })
-                    }
-                    onClick={handleConfigure}
-                    className={getButtonClasses(
-                      'configure',
-                      !state.can({
-                        type: 'CONFIGURE',
-                        config: {
-                          dbLogLevel: LogLevel.DEBUG,
-                          dbInitParams: {},
-                          tableDefinitions: [],
-                        },
-                      }),
-                    )}
-                  >
-                    Configure
-                  </button>
-                  <button
-                    disabled={
-                      !state.can({ type: 'CONNECT', dbProgressHandler: null, statusHandler: null })
-                    }
-                    onClick={handleConnect}
-                    className={getButtonClasses(
-                      'connect',
-                      !state.can({ type: 'CONNECT', dbProgressHandler: null, statusHandler: null }),
-                    )}
-                  >
-                    Connect
-                  </button>
-                  <button
-                    disabled={!state.can({ type: 'DISCONNECT' })}
-                    onClick={handleDisconnect}
-                    className={getButtonClasses('disconnect', !state.can({ type: 'DISCONNECT' }))}
-                  >
-                    Disconnect
-                  </button>
-                  <button
-                    disabled={!state.can({ type: 'RESET' })}
-                    onClick={handleReset}
-                    className={getButtonClasses('reset', !state.can({ type: 'RESET' }))}
-                  >
-                    Reset
-                  </button>
-                  <button
-                    disabled={
-                      !state.can({
-                        type: 'QUERY.EXECUTE',
-                        queryParams: {
-                          sql: query,
-                          callback: () => {},
-                          description: 'QUERY.EXECUTE',
-                          resultOptions: { type: 'array' },
-                        },
-                      })
-                    }
-                    onClick={() => handleQueryAutoCommit()}
-                    className={getButtonClasses(
-                      'query.execute',
-                      !state.can({
-                        type: 'QUERY.EXECUTE',
-                        queryParams: {
-                          sql: query,
-                          callback: () => {},
-                          description: 'QUERY.EXECUTE',
-                          resultOptions: { type: 'array' },
-                        },
-                      }),
-                    )}
-                  >
-                    Query (auto-commit)
-                  </button>
-                  <button
-                    disabled={!state.can({ type: 'TRANSACTION.BEGIN' })}
-                    onClick={handleTransactionBegin}
-                    className={getButtonClasses(
-                      'transaction.begin',
-                      !state.can({ type: 'TRANSACTION.BEGIN' }),
-                    )}
-                  >
-                    Begin Transaction
-                  </button>
-                  <button
-                    disabled={
-                      !state.can({
-                        type: 'TRANSACTION.EXECUTE',
-                        queryParams: {
-                          sql: query,
-                          callback: () => {},
-                          description: 'TRANSACTION.EXECUTE',
-                          resultOptions: { type: 'array' },
-                        },
-                      })
-                    }
-                    onClick={handleTransactionExecute}
-                    className={getButtonClasses(
-                      'transaction.execute',
-                      !state.can({
-                        type: 'TRANSACTION.EXECUTE',
-                        queryParams: {
-                          sql: query,
-                          callback: () => {},
-                          description: 'TRANSACTION.EXECUTE',
-                          resultOptions: { type: 'array' },
-                        },
-                      }),
-                    )}
-                  >
-                    Execute
-                  </button>
-                  <button
-                    disabled={!state.can({ type: 'TRANSACTION.COMMIT' })}
-                    onClick={handleTransactionCommit}
-                    className={getButtonClasses(
-                      'transaction.commit',
-                      !state.can({ type: 'TRANSACTION.COMMIT' }),
-                    )}
-                  >
-                    Commit
-                  </button>
-                  <button
-                    disabled={!state.can({ type: 'TRANSACTION.ROLLBACK' })}
-                    onClick={handleTransactionRollback}
-                    className={getButtonClasses(
-                      'transaction.rollback',
-                      !state.can({ type: 'TRANSACTION.ROLLBACK' }),
-                    )}
-                  >
-                    Rollback
-                  </button>
-                </div>
-              </div>
-            </div>
-
-            {/* Right Column - Catalog spanning both rows */}
-            <div className="bg-white rounded-lg shadow-md p-4 flex flex-col row-span-2">
-              <h2 className="text-lg font-semibold mb-2">Catalog</h2>
-
-              {/* Active Subscriptions Section */}
-              <div className="mb-4">
-                <h3 className="text-md font-medium text-gray-700 mb-2">Active Subscriptions</h3>
-                {activeSubscriptions && activeSubscriptions.size > 0 ? (
-                  <div className="space-y-2">
-                    {Array.from(activeSubscriptions.keys()).map((id) => (
-                      <div
-                        key={id}
-                        className="flex items-center justify-between bg-gray-50 rounded-md p-2"
-                      >
-                        <span className="text-sm text-gray-700">{id}</span>
-                        <button
-                          onClick={() => {
-                            send({
-                              type: 'CATALOG.UNSUBSCRIBE',
-                              id,
-                            })
-                            addOutput('catalog.unsubscribe', `Unsubscribed from ${id}`)
-                          }}
-                          className="text-red-500 hover:text-red-700 text-sm font-medium px-2 py-1 rounded hover:bg-red-50 transition-colors"
-                        >
-                          ✕
-                        </button>
-                      </div>
-                    ))}
-                  </div>
+              <div className="query-result" aria-label="Query result">
+                <h3>Result</h3>
+                {queryResult === null ? (
+                  <p className="muted">Connect, then run SQL. Results appear here.</p>
                 ) : (
-                  <div className="text-sm text-gray-500 italic">No active subscriptions</div>
+                  <pre>{formatValue(queryResult)}</pre>
                 )}
               </div>
-
-              <div className="grid grid-cols-2 gap-4 mb-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Table Name</label>
-                  <input
-                    type="text"
-                    value={tableName}
-                    onChange={(e) => setTableName(e.target.value)}
-                    className="w-full p-2 border border-gray-300 rounded-md text-sm"
-                    placeholder="Enter table name..."
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Table Type</label>
+            </section>
+          )}
+          {panel === 'configuration' && (
+            <section className="editor-panel" aria-label="Configuration workspace">
+              <p className="muted">
+                The sample configuration is ready to use. Edit before clicking Configure.
+              </p>
+              <textarea
+                className="fill-editor"
+                aria-label="DuckDB configuration"
+                spellCheck={false}
+                value={config}
+                onChange={(e) => setConfig(e.target.value)}
+              />
+              <p className="muted">
+                To change configuration after connecting, disconnect and reset first.
+              </p>
+            </section>
+          )}
+          {panel === 'catalog' && (
+            <section className="editor-panel" aria-label="Table catalog workspace">
+              <div className="catalog-fields">
+                <label>
+                  Table name
+                  <input value={tableName} onChange={(e) => setTableName(e.target.value)} />
+                </label>
+                <label>
+                  Encoding
                   <select
                     value={tableType}
                     onChange={(e) => setTableType(e.target.value as 'b64ipc' | 'json')}
-                    className="w-full p-2 border border-gray-300 rounded-md text-sm"
                   >
-                    <option value="b64ipc">IPC (Base64)</option>
+                    <option value="b64ipc">Arrow IPC · base64 + zlib</option>
                     <option value="json" disabled>
                       JSON (not implemented)
                     </option>
                   </select>
+                </label>
+              </div>
+              <textarea
+                className="fill-editor"
+                aria-label="Table payload"
+                spellCheck={false}
+                value={tablePayload}
+                onChange={(e) => setTablePayload(e.target.value)}
+              />
+              <div className="editor-actions">
+                <button className="primary" disabled={!connected} onClick={handleLoadTable}>
+                  Load table
+                </button>
+                <button
+                  disabled={!connected}
+                  onClick={() => {
+                    handleListTables()
+                    setInspector('output')
+                  }}
+                >
+                  List tables
+                </button>
+                <button
+                  onClick={() => {
+                    handleShowConfiguration()
+                    setInspector('output')
+                  }}
+                >
+                  Definitions
+                </button>
+                <button
+                  onClick={activeSubscriptions.has(tableName) ? handleUnsubscribe : handleSubscribe}
+                >
+                  {activeSubscriptions.has(tableName) ? 'Unsubscribe' : 'Subscribe'}
+                </button>
+              </div>
+              <p className="muted">
+                {activeSubscriptions.size} active subscription
+                {activeSubscriptions.size === 1 ? '' : 's'}. Load results and notifications appear
+                in Output.
+              </p>
+            </section>
+          )}
+        </main>
+        {inspector && (
+          <aside
+            className="demo-inspector"
+            id={`${inspector}-inspector`}
+            aria-label={inspector === 'output' ? 'Event output' : 'Machine state details'}
+          >
+            <div className="inspector-heading">
+              <h2>{inspector === 'output' ? 'Event output' : 'Machine state'}</h2>
+              <button aria-label="Close inspector" onClick={() => setInspector(null)}>
+                ✕
+              </button>
+            </div>
+            {inspector === 'output' ? (
+              <>
+                <div className="inspector-subheading">
+                  <span className="muted">Latest first · last 100 events</span>
+                  <button onClick={clearOutput}>Clear</button>
                 </div>
-              </div>
-              <div className="flex-1 flex flex-col min-h-0">
-                <label className="block text-sm font-medium text-gray-700 mb-1">Payload</label>
-                <textarea
-                  aria-label="Table payload"
-                  value={tablePayload}
-                  onChange={(e) => setTablePayload(e.target.value)}
-                  className="w-full flex-1 p-2 border border-gray-300 rounded-md text-sm resize-none"
-                  placeholder={
-                    tableType === 'json' ? 'Enter JSON payload...' : 'Enter base64 Arrow data...'
-                  }
-                />
-              </div>
-
-              <div className="flex flex-wrap gap-2 mt-4">
-                <button
-                  disabled={!state.can({ type: 'CATALOG.LIST_DEFINITIONS', callback: () => {} })}
-                  onClick={handleShowConfiguration}
-                  className={getButtonClasses(
-                    'catalog.list_definitions',
-                    !state.can({ type: 'CATALOG.LIST_DEFINITIONS', callback: () => {} }),
+                <div className="inspector-scroll">
+                  {outputs.length === 0 ? (
+                    <p className="muted">No events yet.</p>
+                  ) : (
+                    outputs.map((output, index) => (
+                      <details
+                        className="event-entry"
+                        key={`${output.timestamp.getTime()}-${index}`}
+                        open={index === 0}
+                      >
+                        <summary>
+                          <span>{output.type}</span>
+                          <time>{output.timestamp.toLocaleTimeString()}</time>
+                        </summary>
+                        <pre>
+                          {typeof output.data === 'string' ? output.data : formatValue(output.data)}
+                        </pre>
+                      </details>
+                    ))
                   )}
-                >
-                  List Definitions
-                </button>
-
-                <button
-                  disabled={!state.can({ type: 'CATALOG.LIST_TABLES', callback: () => {} })}
-                  onClick={handleListTables}
-                  className={getButtonClasses(
-                    'catalog.list_tables',
-                    !state.can({ type: 'CATALOG.LIST_TABLES', callback: () => {} }),
-                  )}
-                >
-                  List Tables
-                </button>
-                <button
-                  disabled={
-                    !state.can({
-                      type: 'CATALOG.LOAD_TABLE',
-                      data: {
-                        tableSpecName: '',
-                        tablePayload: '',
-                        payloadType: 'b64ipc',
-                        payloadCompression: 'none',
-                      },
-                    })
-                  }
-                  onClick={handleLoadTable}
-                  className={getButtonClasses(
-                    'catalog.load_table',
-                    !state.can({
-                      type: 'CATALOG.LOAD_TABLE',
-                      data: {
-                        tableSpecName: '',
-                        tablePayload: '',
-                        payloadType: 'b64ipc',
-                        payloadCompression: 'none',
-                      },
-                    }),
-                  )}
-                >
-                  Load Table
-                </button>
-                <button
-                  disabled
-                  title="Table removal is not implemented by the catalog yet"
-                  onClick={handleDropTable}
-                  className={getButtonClasses('catalog.drop_table', true)}
-                >
-                  Drop Table
-                </button>
-                <button
-                  disabled={
-                    !state.can({
-                      type: 'CATALOG.SUBSCRIBE',
-                      subscription: {
-                        tableSpecName: '',
-                        onSubscribe: () => {},
-                        onChange: () => {},
-                      },
-                    })
-                  }
-                  onClick={handleSubscribe}
-                  className={getButtonClasses(
-                    'catalog.subscribe',
-                    !state.can({
-                      type: 'CATALOG.SUBSCRIBE',
-                      subscription: {
-                        tableSpecName: '',
-                        onSubscribe: () => {},
-                        onChange: () => {},
-                      },
-                    }),
-                  )}
-                >
-                  Subscribe
-                </button>
-                <button
-                  disabled={!state.can({ type: 'CATALOG.UNSUBSCRIBE', id: tableName })}
-                  onClick={handleUnsubscribe}
-                  className={getButtonClasses(
-                    'catalog.unsubscribe',
-                    !state.can({ type: 'CATALOG.UNSUBSCRIBE', id: tableName }),
-                  )}
-                >
-                  Unsubscribe
-                </button>
+                </div>
+              </>
+            ) : (
+              <div className="inspector-scroll">
+                <p className="muted">
+                  Root: {JSON.stringify(state.value)}
+                  <br />
+                  Catalog: {JSON.stringify(dbCatalogState?.value)}
+                </p>
+                <details open>
+                  <summary>Root context</summary>
+                  <pre>{formatValue(state.context, { maxDepth: 2 })}</pre>
+                </details>
+                <details>
+                  <summary>Catalog context &amp; load metrics</summary>
+                  <pre>{formatValue(dbCatalogState?.context, { maxDepth: 3 })}</pre>
+                </details>
               </div>
-            </div>
-          </div>
-        </div>
-
-        {/* Right Sidepanel - Machine State */}
-        <div className="xl:col-span-2 min-w-0 bg-white shadow-lg border-l border-gray-200 p-4 flex flex-col h-full">
-          <h2 className="text-lg font-semibold mb-4 flex-shrink-0">Machine State</h2>
-
-          {/* Progress Bar - Show only during initialization */}
-          {state.matches('initializing') && initProgress && <ProgressBar progress={initProgress} />}
-
-          <div className="space-y-4 flex-1 flex flex-col min-h-0">
-            <div className="flex-shrink-0">
-              <h4 className="font-medium text-gray-700 mb-1 flex-shrink-0">Root / Catalog</h4>
-              <div className="bg-blue-50 border border-blue-200 rounded-md p-3">
-                <code className="text-sm text-blue-800">
-                  {formatValue(state.value)} / {formatValue(dbCatalogState?.value)}
-                </code>
-              </div>
-            </div>
-
-            <div className="flex-1 flex flex-col min-h-0">
-              <h4 className="font-medium text-gray-700 mb-2 flex-shrink-0">Root State</h4>
-              <div className="bg-gray-50 border border-gray-200 rounded-md p-3 flex-1 overflow-y-auto min-h-0">
-                <pre className="text-xs text-gray-700">
-                  {formatValue(state.context, { maxDepth: 2 })}
-                </pre>
-              </div>
-            </div>
-
-            <div className="flex-1 flex flex-col min-h-0">
-              <h4 className="font-medium text-gray-700 mb-2 flex-shrink-0">Catalog State</h4>
-              <div className="bg-gray-50 p-3 rounded-lg flex-1 overflow-y-auto min-h-0">
-                <pre className="text-xs text-gray-700 whitespace-pre-wrap">
-                  {formatValue(dbCatalogState?.context, { maxDepth: 3 })}
-                </pre>
-              </div>
-            </div>
-          </div>
-        </div>
+            )}
+          </aside>
+        )}
       </div>
+      <footer className="demo-status" role="status">
+        <span className="status-dot" />
+        {latestMessage}
+      </footer>
+      {state.matches('initializing') && initProgress && (
+        <div className="connection-progress">
+          <ProgressBar progress={initProgress} />
+        </div>
+      )}
     </div>
   )
 }

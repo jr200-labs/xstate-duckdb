@@ -4,18 +4,20 @@ page-layout: full
 toc: false
 ---
 
-Run the library directly in your browser. The database lives in this page; reloading starts a new session. DuckDB's engine downloads from jsDelivr when you connect. The diagram and controls run locally, with no external diagram service.
-
-1. Click **Configure**, then **Connect**. Wait for the active state to become `connected`.
-2. Click **Query (auto-commit)** to list the databases, or try `SELECT 42 AS answer`.
-3. Click **Subscribe**, then **Load Table** to load the supplied Arrow sample into `test_table` and see a change notification. **List Tables** shows the generated instance name to use in SQL.
-4. Try **Begin Transaction**, **Execute**, then **Commit** or **Rollback**. Wait for each operation to finish before sending the next.
-5. **Disconnect** releases the database. **Reset** returns the configured machine to `idle`.
-
-[Open the demo in its own tab](demo-assets/index.html){target="_blank"}
+Configure → Connect → Run query. DuckDB runs in your browser; reloading starts a new session. [Open full screen](demo-assets/index.html){target="_blank"}.
 
 ```{=html}
-<iframe class="demo-frame" src="demo-assets/index.html" title="Interactive xstate-duckdb demo" loading="lazy"></iframe>
+<iframe class="demo-frame" src="demo-assets/index.html" title="Interactive xstate-duckdb demo"></iframe>
+<details class="demo-help"><summary>How to use the demo</summary>
 ```
 
-The diagram shows root lifecycle transitions and highlights the current state. The active value also shows transaction substates. Output, catalog context, and load metrics appear below the controls. If an operation fails, reload the demo to start a fresh database session; see [error behavior](reference.qmd#error-behavior).
+- **SQL query**: run SQL directly, or begin a transaction, execute, and commit or roll back. Wait for each operation to finish.
+- **Table catalog**: subscribe, then load the supplied Arrow sample. List tables to find the physical table name to query.
+- **Configuration**: edit the sample YAML before configuring. Disconnect and reset to configure again.
+- **Output / State details**: open a side panel for event history, actor context, and load metrics. Close it to give the editor more space.
+
+The compact diagram shows root transitions; the state badge includes transaction substates. DuckDB assets download from jsDelivr on connection. If an operation fails, reload to restart; see [error behavior](reference.qmd#error-behavior).
+
+```{=html}
+</details>
+```

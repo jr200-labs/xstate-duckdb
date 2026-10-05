@@ -2,13 +2,25 @@ import { duckdbMachine } from '@jr200-labs/xstate-duckdb'
 import type { SnapshotFrom } from 'xstate'
 
 const positions: Record<string, [number, number]> = {
-  idle: [110, 55],
-  configured: [380, 55],
-  initializing: [650, 55],
-  connected: [920, 55],
-  error: [110, 230],
-  disconnected: [380, 230],
-  transaction: [920, 230],
+  idle: [110, 40],
+  configured: [370, 40],
+  initializing: [630, 40],
+  connected: [890, 40],
+  error: [110, 160],
+  disconnected: [370, 160],
+  transaction: [890, 160],
+}
+// Each directed transition has its own ports and lane, including reverse transitions.
+const routes: Record<string, { path: string; label: [number, number] }> = {
+  'idle:configured': { path: 'M190,30 H290', label: [240, 21] },
+  'configured:idle': { path: 'M290,50 C260,88 220,88 190,50', label: [240, 83] },
+  'configured:initializing': { path: 'M450,40 H550', label: [500, 30] },
+  'initializing:connected': { path: 'M710,40 H810', label: [760, 30] },
+  'connected:disconnected': { path: 'M810,50 H785 V116 H370 V140', label: [600, 108] },
+  'disconnected:configured': { path: 'M410,140 V60', label: [435, 95] },
+  'connected:transaction': { path: 'M940,60 V140', label: [1007, 98] },
+  'transaction:connected': { path: 'M850,140 V60', label: [875, 108] },
+  'error:configured': { path: 'M110,140 V103 H330 V60', label: [230, 120] },
 }
 const nodes = Object.values(duckdbMachine.states)
 const transitions = nodes.flatMap((node) =>
@@ -23,16 +35,16 @@ const transitions = nodes.flatMap((node) =>
 
 export function MachineDiagram({ snapshot }: { snapshot: SnapshotFrom<typeof duckdbMachine> }) {
   return (
-    <section className="bg-white rounded-lg shadow p-4" aria-label="Live state diagram">
-      <h2 className="text-lg font-semibold">Live state machine</h2>
-      <p className="text-sm text-gray-600">
-        Root lifecycle overview · blue marks the active state. Use the controls below to send
-        events.
-      </p>
-      <div className="overflow-x-auto">
+    <section className="machine-diagram" aria-label="Live state diagram">
+      <div className="diagram-heading">
+        <h2>
+          State machine <span className="muted">· active state in blue</span>
+        </h2>
+        <span className="state-badge">{JSON.stringify(snapshot.value)}</span>
+      </div>
+      <div className="diagram-scroll">
         <svg
-          viewBox="0 0 1080 300"
-          className="w-full min-w-[720px]"
+          viewBox="0 0 1080 195"
           role="img"
           aria-label={`DuckDB state: ${JSON.stringify(snapshot.value)}`}
         >
@@ -44,38 +56,29 @@ export function MachineDiagram({ snapshot }: { snapshot: SnapshotFrom<typeof duc
               refY="5"
               markerWidth="6"
               markerHeight="6"
-              orient="auto-start-reverse"
+              orient="auto"
             >
-              <path d="M 0 0 L 10 5 L 0 10 z" fill="#64748b" />
+              <path d="M 0 0 L 10 5 L 0 10 z" fill="#718299" />
             </marker>
           </defs>
           {transitions.map(({ source, target, label }, index) => {
-            const from = positions[source],
-              to = positions[target]
-            if (!from || !to) return null
-            const horizontal = from[1] === to[1]
-            const direction = horizontal ? Math.sign(to[0] - from[0]) : Math.sign(to[1] - from[1])
-            const vertical = from[0] === to[0]
-            const lane = vertical ? direction * 40 : 0
-            const x1 = from[0] + (horizontal ? direction * 88 : lane)
-            const y1 = from[1] + (horizontal ? 0 : direction * 24)
-            const x2 = to[0] + (horizontal ? -direction * 88 : lane)
-            const y2 = to[1] - (horizontal ? 0 : direction * 24)
-            const bend = horizontal && direction < 0 ? 45 : 0
+            const route = routes[`${source}:${target}`]
+            if (!route) return null
             return (
               <g key={index}>
                 <path
-                  d={`M${x1},${y1} Q${(x1 + x2) / 2},${(y1 + y2) / 2 + bend} ${x2},${y2}`}
-                  stroke="#64748b"
+                  d={route.path}
+                  stroke="#718299"
+                  strokeWidth="1.4"
                   fill="none"
                   markerEnd="url(#arrow)"
                 />
                 <text
-                  x={(x1 + x2) / 2}
-                  y={(y1 + y2) / 2 + bend / 2 - 8 + (vertical ? direction * 18 : 0)}
+                  x={route.label[0]}
+                  y={route.label[1]}
                   textAnchor="middle"
-                  fontSize="10"
-                  fill="#475569"
+                  fontSize="13"
+                  fill="#52657c"
                   paintOrder="stroke"
                   stroke="white"
                   strokeWidth="4"
@@ -91,16 +94,16 @@ export function MachineDiagram({ snapshot }: { snapshot: SnapshotFrom<typeof duc
             return (
               <g key={node.key}>
                 <rect
-                  x={x - 88}
-                  y={y - 24}
-                  width="176"
-                  height="48"
-                  rx="12"
-                  fill={active ? '#dbeafe' : '#f8fafc'}
-                  stroke={active ? '#2563eb' : '#94a3b8'}
-                  strokeWidth={active ? 3 : 1}
+                  x={x - 80}
+                  y={y - 20}
+                  width="160"
+                  height="40"
+                  rx="8"
+                  fill={active ? '#e9f1ff' : '#f8fafc'}
+                  stroke={active ? '#2563eb' : '#c0ccda'}
+                  strokeWidth={active ? 2 : 1}
                 />
-                <text x={x} y={y + 5} textAnchor="middle" fontSize="15" fill="#0f172a">
+                <text x={x} y={y + 5} textAnchor="middle" fontSize="17" fill="#172b43">
                   {active ? '● ' : ''}
                   {node.key}
                 </text>
@@ -109,13 +112,6 @@ export function MachineDiagram({ snapshot }: { snapshot: SnapshotFrom<typeof duc
           })}
         </svg>
       </div>
-      <p className="font-mono text-sm" role="status">
-        Active: {JSON.stringify(snapshot.value)}
-      </p>
-      <p className="text-xs text-gray-500 mt-2">
-        Transaction substates appear in the active value. Query and catalog events can run without
-        changing the root state.
-      </p>
     </section>
   )
 }
