@@ -1,0 +1,80 @@
+---
+title: Getting started
+---
+
+## Install
+
+Install the library and its peer dependencies in your browser application:
+
+```bash
+pnpm add @jr200-labs/xstate-duckdb xstate @duckdb/duckdb-wasm apache-arrow @opentelemetry/api @opentelemetry/api-logs
+```
+
+The current library requires DuckDB-Wasm `>=1.33.1-dev42.0 <2`, Arrow `>=21 <22`, OpenTelemetry API `^1.9.1`, and OpenTelemetry Logs API `^0.221.0`. For React, also install `@xstate/react`.
+
+## Configure, connect, query
+
+```typescript
+import { createActor, waitFor } from 'xstate'
+import { LogLevel } from '@duckdb/duckdb-wasm'
+import { duckdbMachine } from '@jr200-labs/xstate-duckdb'
+
+const database = createActor(duckdbMachine)
+database.subscribe({
+  next: snapshot => console.log('State:', snapshot.value),
+  error: error => console.error('Database actor failed:', error),
+})
+database.start()
+
+database.send({
+  type: 'CONFIGURE',
+  config: {
+    dbInitParams: null,
+    dbLogLevel: LogLevel.WARNING,
+    tableDefinitions: [],
+  },
+})
+database.send({
+  type: 'CONNECT',
+  dbProgressHandler: progress => console.log(progress),
+  statusHandler: status => console.log(status),
+})
+await waitFor(database, state => state.matches('connected'), { timeout: 60_000 })
+
+database.send({
+  type: 'QUERY.EXECUTE',
+  queryParams: {
+    description: 'first-query',
+    sql: 'SELECT 42 AS answer',
+    resultOptions: { type: 'array' },
+    callback: rows => console.log(rows),
+  },
+})
+```
+
+Wait for `connected` before sending queries. Connection initialization is asynchronous and downloads DuckDB assets; your content security policy must permit the CDN and blob workers used by DuckDB-Wasm.
+
+## React
+
+Use `const [snapshot, send, actor] = useActor(duckdbMachine)` from `@xstate/react`. Send the same events as above and disable controls with `snapshot.can(event)`. The [demo](demo.qmd) shows a complete React integration, including the catalog child snapshot.
+
+## Cleanup
+
+When finished with outstanding queries and transactions, send `DISCONNECT` while connected. Wait for `configured` before stopping the actor so the asynchronous DuckDB termination can finish:
+
+```typescript
+database.send({ type: 'DISCONNECT' })
+await waitFor(database, state => state.matches('configured'))
+database.stop()
+```
+
+## Run these docs locally
+
+Use Node.js 22 or newer, the pnpm version declared in `package.json`, and [Quarto](https://quarto.org/docs/get-started/).
+
+```bash
+pnpm install --frozen-lockfile
+pnpm docs:preview
+```
+
+Quarto's pre-render hook installs locked workspace dependencies, builds the library, and builds `docs/demo` into `docs/demo-assets`. Quarto copies that bundle into `_site`. For faster demo-only development, run `pnpm demo:dev`. Run `pnpm docs:build` for a production site.

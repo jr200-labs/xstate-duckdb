@@ -26,297 +26,51 @@ pnpm add @jr200-labs/xstate-duckdb
 
 ### Peer dependencies
 
-`@duckdb/duckdb-wasm`, `apache-arrow`, and `@opentelemetry/api` are declared as peer dependencies and must be installed directly by the consumer. This guarantees a single resolved version across the dependency tree -- preventing the class of bug where a transitive copy of DuckDB-wasm diverges from the `.wasm` assets the consumer actually ships.
+`@duckdb/duckdb-wasm`, `apache-arrow`, `@opentelemetry/api`, and `@opentelemetry/api-logs` are declared as peer dependencies and must be installed directly by the consumer. This guarantees a single resolved version across the dependency tree -- preventing the class of bug where a transitive copy of DuckDB-wasm diverges from the `.wasm` assets the consumer actually ships.
 
 ```bash
-pnpm add @duckdb/duckdb-wasm apache-arrow @opentelemetry/api
+pnpm add @duckdb/duckdb-wasm apache-arrow @opentelemetry/api @opentelemetry/api-logs
 ```
 
 Supported ranges:
 
-| Peer                  | Range                 |
-| --------------------- | --------------------- |
-| `@duckdb/duckdb-wasm` | `>=1.33.1-dev42.0 <2` |
-| `apache-arrow`        | `>=21 <22`            |
-| `@opentelemetry/api`  | `^1.9.0`              |
+| Peer                      | Range                 |
+| ------------------------- | --------------------- |
+| `@duckdb/duckdb-wasm`     | `>=1.33.1-dev42.0 <2` |
+| `apache-arrow`            | `>=21 <22`            |
+| `@opentelemetry/api`      | `^1.9.1`              |
+| `@opentelemetry/api-logs` | `^0.221.0`            |
 
-## API Reference
+## Documentation and live demo
 
-### Machine States
+The Quarto documentation lives in [`docs/`](docs/index.qmd), with guides for
+[getting started](docs/getting-started.qmd), [queries and transactions](docs/queries.qmd),
+[the catalog](docs/catalog.qmd), [observability](docs/observability.qmd), and
+[optimistic projections](docs/optimistic.qmd).
 
-The `duckdbMachine` has the following states:
-
-- **`idle`**: Initial state, waiting for configuration
-- **`configured`**: Database configured, ready to connect
-- **`initializing`**: Database initialization in progress
-- **`connected`**: Database connected and ready for operations
-- **`disconnected`**: Database disconnected
-- **`error`**: Error state
-
-### Events
-
-#### Configuration Events
-
-- `CONFIGURE`: Configure database parameters and catalog
-- `RESET`: Reset to initial state
-
-#### Connection Events
-
-- `CONNECT`: Initialize and connect to database
-- `DISCONNECT`: Disconnect from database
-
-#### Query Events
-
-- `QUERY.EXECUTE`: Execute a one-shot query with auto-commit
-
-#### Transaction Events
-
-- `TRANSACTION.BEGIN`: Start a new transaction
-- `TRANSACTION.EXECUTE`: Execute a query within a transaction
-- `TRANSACTION.COMMIT`: Commit the current transaction
-- `TRANSACTION.ROLLBACK`: Rollback the current transaction
-
-#### Catalog Events
-
-- `CATALOG.SUBSCRIBE`: Subscribe to table changes with a subscription object
-- `CATALOG.UNSUBSCRIBE`: Unsubscribe from table changes using subscription ID
-- `CATALOG.LIST_TABLES`: List all loaded tables
-- `CATALOG.LOAD_TABLE`: Load data into a table
-- `CATALOG.DROP_TABLE`: Drop a table
-- `CATALOG.LIST_DEFINITIONS`: Get catalog configuration
-
-## OpenTelemetry
-
-This library emits OpenTelemetry spans for DuckDB lifecycle, query, transaction,
-and catalog operations. DuckDB runs in-process (WASM) so there is no cross-
-process context propagation — spans attach to the ambient OTel context so they
-nest correctly under any caller-provided parent span.
-
-### Emitted spans
-
-| Span name                            | Emitted by                       | Attributes                                                            |
-| ------------------------------------ | -------------------------------- | --------------------------------------------------------------------- |
-| `xstate.duckdb.init`                 | `initDuckDb`                     | `duckdb.version`                                                      |
-| `xstate.duckdb.close`                | `closeDuckDb`                    | —                                                                     |
-| `xstate.duckdb.query`                | `duckdbRunQuery` / `queryDuckDb` | `query.description`, `result.type`, `result.row_count`                |
-| `xstate.duckdb.tx.begin`             | `beginTransaction`               | —                                                                     |
-| `xstate.duckdb.tx.commit`            | `commitTransaction`              | —                                                                     |
-| `xstate.duckdb.tx.rollback`          | `rollbackTransaction`            | —                                                                     |
-| `xstate.duckdb.load_table`           | `loadTableIntoDuckDb`            | `table.spec`, `payload.type`, `payload.compression`, `table.instance` |
-| `xstate.duckdb.prune`                | `pruneTableVersions`             | `pruned.instances`, `kept.versions`                                   |
-| `xstate.duckdb.optimistic_operation` | `executeOptimisticOperation`     | `operation.action`, `operation.outcome`                               |
-
-Optimistic operations also emit the low-cardinality counter
-`xstate.duckdb.optimistic.operation.count`, the millisecond histogram
-`xstate.duckdb.optimistic.operation.duration`, and a trace-correlated structured
-log for each accepted or rejected local operation. SQL and field values are
-never included.
-
-All error paths record exceptions on the active span, set span status to
-`ERROR`, and emit an `xstate.duckdb.error` event with a truncated stack.
-
-### Enabling tracing
-
-`@opentelemetry/api` is a peer dependency — the consumer controls the installed
-version and registers the SDK. If no provider is registered all telemetry calls
-become no-ops. Minimal setup:
-
-```ts
-import { trace, propagation, context } from '@opentelemetry/api'
-import { AsyncLocalStorageContextManager } from '@opentelemetry/context-async-hooks'
-import { W3CTraceContextPropagator } from '@opentelemetry/core'
-import { BasicTracerProvider, SimpleSpanProcessor } from '@opentelemetry/sdk-trace-base'
-
-const provider = new BasicTracerProvider({
-  spanProcessors: [/* your exporter */],
-})
-trace.setGlobalTracerProvider(provider)
-propagation.setGlobalPropagator(new W3CTraceContextPropagator())
-
-const ctxMgr = new AsyncLocalStorageContextManager()
-ctxMgr.enable()
-context.setGlobalContextManager(ctxMgr)
-```
-
-## Examples
-
-### Basic Usage
-
-```typescript
-import { duckdbMachine } from '@jr200-labs/xstate-duckdb'
-import { useActor } from '@xstate/react'
-
-function DatabaseComponent() {
-  const [state, send] = useActor(duckdbMachine)
-
-  const initializeDB = () => {
-    send({
-      type: 'CONFIGURE',
-      dbInitParams: {
-        logLevel: LogLevel.INFO,
-        config: {},
-      },
-      catalogConfig: {},
-    })
-    send({ type: 'CONNECT' })
-  }
-
-  const runQuery = () => {
-    send({
-      type: 'QUERY.EXECUTE',
-      queryParams: {
-        sql: 'SELECT 1 as test',
-        callback: (result) => console.log(result),
-        description: 'test_query',
-        resultType: 'json',
-      },
-    })
-  }
-
-  return (
-    <div>
-      <button onClick={initializeDB}>Initialize DB</button>
-      <button onClick={runQuery}>Run Query</button>
-    </div>
-  )
-}
-```
-
-### Transaction Management
-
-```typescript
-const handleTransaction = () => {
-  // Begin transaction
-  send({ type: 'TRANSACTION.BEGIN' })
-
-  // Execute queries within transaction
-  send({
-    type: 'TRANSACTION.EXECUTE',
-    queryParams: {
-      sql: 'INSERT INTO users (name) VALUES ("John")',
-      callback: (result) => console.log('Insert result:', result),
-      description: 'insert_user',
-      resultType: 'json',
-    },
-  })
-
-  // Commit or rollback
-  send({ type: 'TRANSACTION.COMMIT' })
-  // or send({ type: 'TRANSACTION.ROLLBACK' })
-}
-```
-
-### Table Management
-
-```typescript
-const handleTableOperations = () => {
-  // Load a table with Arrow data
-  send({
-    type: 'CATALOG.LOAD_TABLE',
-    tableName: 'my_table',
-    tablePayload: arrowDataBase64,
-    payloadType: 'b64ipc',
-    payloadCompression: 'zlib',
-    callback: (tableInstanceName, error) => {
-      if (error) console.error('Load error:', error)
-      else console.log('Table loaded:', tableInstanceName)
-    },
-  })
-
-  // List all tables
-  send({
-    type: 'CATALOG.LIST_TABLES',
-    callback: (tables) => console.log('Tables:', tables),
-  })
-
-  // Subscribe to table changes with enhanced subscription object
-  send({
-    type: 'CATALOG.SUBSCRIBE',
-    subscription: {
-      tableSpecName: 'my_table',
-      onSubscribe: (id: string, tableSpecName: string) => {
-        console.log(`Subscribed to ${tableSpecName} with ID: ${id}`)
-      },
-      onChange: (tableInstanceName: string, tableVersionId: number) => {
-        console.log(`Table updated: ${tableInstanceName}, version: ${tableVersionId}`)
-      },
-    },
-  })
-
-  // Unsubscribe using the subscription ID
-  send({
-    type: 'CATALOG.UNSUBSCRIBE',
-    id: 'subscription_id_here',
-  })
-}
-```
-
-### Subscription Management
-
-The subscription system provides real-time notifications when tables are updated:
-
-```typescript
-// Create a subscription with custom callbacks
-const subscription = {
-  tableSpecName: 'users',
-  onSubscribe: (id: string, tableSpecName: string) => {
-    console.log(`Successfully subscribed to ${tableSpecName} with ID: ${id}`)
-    // Store the subscription ID for later unsubscription
-    setSubscriptionId(id)
-  },
-  onChange: (tableInstanceName: string, tableVersionId: number) => {
-    console.log(`Table ${tableSpecName} updated to version ${tableVersionId}`)
-    // Handle table updates - e.g., refresh UI, fetch new data
-    refreshTableData(tableInstanceName)
-  },
-}
-
-send({
-  type: 'CATALOG.SUBSCRIBE',
-  subscription,
-})
-
-// Later, unsubscribe using the stored ID
-send({
-  type: 'CATALOG.UNSUBSCRIBE',
-  id: subscriptionId,
-})
-```
-
-## Development
-
-### Prerequisites
-
-- Node.js 18+
-- pnpm (recommended)
-
-### Setup
+The interactive React example now lives in `docs/demo/`. It runs DuckDB in the
+visitor's browser and displays a live XState lifecycle diagram alongside query,
+transaction, and catalog controls.
 
 ```bash
-# Install dependencies
-pnpm install
-
-# Build the project
-pnpm build
-
-# Run tests
+pnpm install --frozen-lockfile
+pnpm demo:dev       # library build + Vite demo
+pnpm docs:preview   # Quarto docs with embedded production demo
+pnpm docs:build     # static site in docs/_site
 pnpm test
-
-# Start development mode
-pnpm dev
 ```
 
-### Running Examples
+Documentation builds require Node.js 22+ and Quarto. Quarto's pre-render hook
+builds the library and demo automatically. Generated files are not committed.
 
-The project includes a React example in `examples/react-test/`:
+### Publishing
 
-```bash
-cd examples/react-test
-pnpm install
-pnpm dev
-```
-
-This will start a development server with a comprehensive UI for testing all database operations.
+`.github/workflows/bespoke_docs.yaml` validates the site on pull requests and
+uses GAT's reusable Quarto publisher on master. The caller includes library and
+lockfile changes as well as docs, so the demo is rebuilt when its code changes.
+GAT publishes the rendered site to `gh-pages`. Configure GitHub Pages to serve
+that branch's root directory. The demo uses relative asset paths so the site
+works beneath the project's GitHub Pages path.
 
 ## Contributing
 

@@ -1,0 +1,81 @@
+---
+title: Queries and transactions
+---
+
+## One-shot queries
+
+Send `QUERY.EXECUTE` while the root is `connected`. Supply `queryParams` with `sql`, `description`, `resultOptions`, and an optional `callback`. Each query actor acquires a connection and runs independently; do not assume two consecutive sends will finish in order.
+
+```typescript
+database.send({
+  type: 'QUERY.EXECUTE',
+  queryParams: {
+    description: 'grouped-values',
+    sql: "SELECT * FROM (VALUES ('a', 1), ('a', 2)) AS t(category, amount)",
+    resultOptions: { type: 'multimap', key: 'category', value: 'amount' },
+    callback: result => console.log(result), // Map { 'a' => [1, 2] }
+  },
+})
+```
+
+### Result formats
+
+| `resultOptions.type` | Additional options | Result |
+|---|---|---|
+| `array` | None | Array of Arrow row objects |
+| `arrow` | None | Apache Arrow `Table` |
+| `dictionary` | `key` | `Map` of key to row; later duplicate keys replace earlier rows |
+| `multimap` | `key`, optional `value` | `Map` of key to arrays of rows, or projected values |
+| `singlevaluemap` | `key`, `value` | `Map` of key to one projected value |
+| `firstvalue` | `key` | First row's named field, or `null` |
+| `firstrow` | None | First row, or `null` |
+
+Use unique SQL aliases when joining tables: duplicate output column names are rejected. Multimap keys must be truthy; a missing key, empty string, zero, or false raises an error.
+
+## Transactions
+
+Transaction events are asynchronous. Wait for `transaction.within_transaction` after beginning and after every execution, then commit or roll back. The following continues with the `database` actor from [Getting started](getting-started.qmd):
+
+```typescript
+import { waitFor } from 'xstate'
+
+database.send({ type: 'TRANSACTION.BEGIN' })
+await waitFor(database, s => s.matches({ transaction: 'within_transaction' }))
+
+database.send({
+  type: 'TRANSACTION.EXECUTE',
+  queryParams: {
+    description: 'create-example',
+    sql: 'CREATE TABLE measurements (value DOUBLE)',
+    resultOptions: { type: 'array' },
+  },
+})
+await waitFor(database, s => s.matches({ transaction: 'within_transaction' }))
+
+database.send({ type: 'TRANSACTION.COMMIT' })
+await waitFor(database, s => s.matches('connected'))
+```
+
+Use `TRANSACTION.ROLLBACK` instead of commit to discard changes. Auto-commit queries are not accepted while the root is in a transaction. Set suitable `waitFor` timeouts and handle failures in production code.
+
+## Promise-based queries
+
+`duckdbRunQuery` also accepts an existing DuckDB connection. Without a callback it resolves to the formatted result; with a callback it returns `undefined` after invoking that callback. Close connections you create when finished.
+
+```typescript
+import { duckdbRunQuery } from '@jr200-labs/xstate-duckdb'
+
+const db = database.getSnapshot().context.duckDbHandle!
+const connection = await db.connect()
+try {
+  const answer = await duckdbRunQuery({
+    connection,
+    description: 'answer',
+    sql: 'SELECT 42 AS answer',
+    resultOptions: { type: 'firstvalue', key: 'answer' },
+  })
+  console.log(answer)
+} finally {
+  await connection.close()
+}
+```

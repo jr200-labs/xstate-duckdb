@@ -32,7 +32,11 @@
     "test:watch": "vitest",
     "prettier": "prettier --write \"**/*.{ts,mjs,js,json,md,yml,yaml}\"",
     "lint": "tsc --noEmit",
-    "prepublishOnly": "pnpm build && pnpm test"
+    "prepublishOnly": "pnpm build && pnpm test",
+    "docs:build": "quarto render docs",
+    "docs:preview": "quarto preview docs",
+    "demo:build": "pnpm build && pnpm --dir docs/demo build",
+    "demo:dev": "pnpm build && pnpm --dir docs/demo dev"
   },
   "keywords": [
     "xstate",

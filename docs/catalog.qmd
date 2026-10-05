@@ -1,0 +1,71 @@
+---
+title: Table catalog
+---
+
+## Define tables before connecting
+
+Include definitions in the root `CONFIGURE` event's `config.tableDefinitions`:
+
+```typescript
+const tableDefinitions = [{
+  schema: 'main',
+  name: 'measurements',
+  isVersioned: true,
+  maxVersions: 2,
+}]
+```
+
+A versioned load creates a new physical table and retains up to `maxVersions`. Use callback or subscription instance names when querying; the logical specification name is not the versioned physical name. Loads are queued and processed by the catalog actor.
+
+## Load data
+
+After connecting, send a `data` object inside `CATALOG.LOAD_TABLE`:
+
+```typescript
+database.send({
+  type: 'CATALOG.LOAD_TABLE',
+  data: {
+    tableSpecName: 'measurements',
+    tablePayload: compressedArrowBase64,
+    payloadType: 'b64ipc',
+    payloadCompression: 'zlib',
+    callback: (instance, error) => console.log(instance, error),
+  },
+})
+```
+
+Pass a base64 Arrow IPC string and set `payloadCompression` to `'zlib'` or `'none'` to match its encoding. The demo includes a compressed Arrow sample.
+
+`payloadType: 'json'` is present in the public type, but its current loader only records metrics and does not insert data into DuckDB. Use Arrow IPC for actual table loading. The demo disables JSON loading until the library implements it.
+
+## Subscribe to loaded versions
+
+```typescript
+const subscriptionId = 'measurements-panel'
+database.send({
+  type: 'CATALOG.SUBSCRIBE',
+  subscription: {
+    subscriptionUid: subscriptionId,
+    tableSpecName: 'measurements',
+    onSubscribe: (id, name) => console.log(id, name),
+    onChange: (instance, version, isVersioned) => {
+      console.log({ instance, version, isVersioned })
+    },
+  },
+})
+// Later:
+database.send({ type: 'CATALOG.UNSUBSCRIBE', id: subscriptionId })
+```
+
+The subscription key is `subscriptionUid`, or the table specification name when omitted. Registering the same key replaces its previous subscription. The current implementation stores `onSubscribe` but does not invoke it; retain the key yourself. `onChange` reports successful loads. `CATALOG.FORCE_NOTIFY` with an `id` can notify a subscription of the latest loaded version.
+
+## Inspect the catalog
+
+```typescript
+database.send({ type: 'CATALOG.LIST_TABLES', callback: console.log })
+database.send({ type: 'CATALOG.LIST_DEFINITIONS', callback: console.log })
+```
+
+The catalog snapshot is available from `database.getSnapshot().children.dbCatalog`. Its context contains `loadedVersions`, `subscriptions`, `pendingTableLoads`, `loadMetrics`, and `error`. The package exports `DuckDbCatalogSnapshot` for typed access.
+
+`CATALOG.DROP_TABLE` is declared as an event but its current handler does not implement removal. Do not depend on it for cleanup; disconnect to terminate the demo database, or manage physical tables explicitly using SQL and account for catalog metadata yourself.

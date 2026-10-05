@@ -1,0 +1,347 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  font-family: Inter, system-ui, sans-serif;
+  color: #172b43;
+  background: #f3f6fa;
+  font-size: 13px;
+}
+* {
+  box-sizing: border-box;
+}
+body {
+  margin: 0;
+}
+button,
+input,
+select,
+textarea {
+  font: inherit;
+}
+button {
+  border: 1px solid #d4dce7;
+  background: white;
+  border-radius: 6px;
+  padding: 6px 10px;
+  cursor: pointer;
+  white-space: nowrap;
+  font-weight: 500;
+}
+button:hover:not(:disabled) {
+  background: #eff5ff;
+  border-color: #8caee0;
+}
+button:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+button:focus-visible,
+summary:focus-visible {
+  outline: 2px solid #2563eb;
+  outline-offset: 2px;
+}
+button.primary {
+  background: #245cce;
+  border-color: #245cce;
+  color: white;
+}
+button.primary:hover:not(:disabled) {
+  background: #194bad;
+}
+button[aria-expanded='true'] {
+  background: #e8f0ff;
+  color: #174ba8;
+  border-color: #9ab9ef;
+}
+.demo-app {
+  height: 100dvh;
+  min-height: 460px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 12px;
+  position: relative;
+}
+.demo-toolbar,
+.connection-controls,
+.inspector-controls,
+.editor-actions,
+.inspector-heading,
+.inspector-subheading {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.demo-toolbar {
+  justify-content: space-between;
+  flex-wrap: wrap;
+  flex-shrink: 0;
+}
+.count {
+  font-size: 11px;
+  background: #edf1f7;
+  border-radius: 4px;
+  padding: 1px 5px;
+}
+.machine-diagram {
+  background: white;
+  border: 1px solid #dce3ed;
+  border-radius: 9px;
+  padding: 8px 12px;
+  flex-shrink: 0;
+}
+.diagram-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+.diagram-heading h2 {
+  font-weight: 600;
+  font-size: 12px;
+}
+.state-badge {
+  font:
+    11px ui-monospace,
+    monospace;
+  background: #edf4ff;
+  color: #2055af;
+  border-radius: 4px;
+  padding: 3px 6px;
+}
+.diagram-scroll {
+  overflow-x: auto;
+}
+.machine-diagram svg {
+  display: block;
+  width: 100%;
+  height: 165px;
+  min-width: 660px;
+}
+.demo-workspace {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  flex: 1;
+  min-height: 0;
+  gap: 10px;
+}
+.demo-workspace.with-inspector {
+  grid-template-columns: minmax(0, 1fr) 310px;
+}
+.demo-editor,
+.demo-inspector {
+  min-height: 0;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  background: white;
+  border: 1px solid #dce3ed;
+  border-radius: 9px;
+  overflow: hidden;
+}
+.editor-tabs {
+  display: flex;
+  gap: 5px;
+  padding: 7px 10px;
+  border-bottom: 1px solid #e4e9f1;
+  flex-shrink: 0;
+}
+.editor-tabs button {
+  border: 0;
+  color: #68778c;
+}
+.editor-tabs button[aria-pressed='true'] {
+  background: #edf4ff;
+  color: #2055af;
+}
+.editor-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 12px;
+  flex: 1;
+  min-height: 0;
+  overflow: auto;
+}
+textarea {
+  resize: none;
+  border: 1px solid #d6dfea;
+  border-radius: 6px;
+  background: #fbfcfe;
+  padding: 10px;
+  font:
+    12px/1.6 ui-monospace,
+    SFMono-Regular,
+    monospace;
+  width: 100%;
+  outline-color: #2563eb;
+}
+.query-panel > textarea {
+  flex: 1;
+  min-height: 66px;
+}
+.fill-editor {
+  flex: 1;
+  min-height: 80px;
+}
+.editor-actions {
+  flex-wrap: wrap;
+  flex-shrink: 0;
+}
+.action-divider {
+  width: 1px;
+  height: 22px;
+  background: #dce3ed;
+  margin: 0 3px;
+}
+.query-result {
+  flex: 1;
+  min-height: 65px;
+  overflow: auto;
+  border-top: 1px solid #e4e9f1;
+  padding-top: 8px;
+}
+.query-result h3 {
+  font-size: 11px;
+  font-weight: 600;
+  color: #6a7a90;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: 4px;
+}
+pre {
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  font:
+    11px/1.6 ui-monospace,
+    SFMono-Regular,
+    monospace;
+  margin: 0;
+}
+.muted {
+  font-size: 12px;
+  color: #718096;
+  margin: 0;
+}
+.catalog-fields {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+label {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: 12px;
+  color: #596a80;
+}
+input,
+select {
+  min-width: 0;
+  padding: 6px 8px;
+  border: 1px solid #d6dfea;
+  border-radius: 5px;
+  color: #172b43;
+  background: white;
+}
+.inspector-heading {
+  justify-content: space-between;
+  padding: 10px 12px;
+  border-bottom: 1px solid #e4e9f1;
+}
+.inspector-heading h2 {
+  font-weight: 600;
+}
+.inspector-heading button {
+  border: 0;
+  padding: 2px 6px;
+}
+.inspector-subheading {
+  justify-content: space-between;
+  padding: 8px 12px;
+}
+.inspector-scroll {
+  overflow: auto;
+  min-height: 0;
+  padding: 10px 12px;
+  flex: 1;
+}
+.inspector-scroll details {
+  border-bottom: 1px solid #e4e9f1;
+  padding: 8px 0;
+}
+.inspector-scroll summary {
+  cursor: pointer;
+  font-size: 11px;
+  font-weight: 600;
+}
+.inspector-scroll pre {
+  margin-top: 8px;
+  color: #485971;
+}
+.event-entry time {
+  display: block;
+  font-size: 10px;
+  color: #8492a6;
+  font-weight: normal;
+}
+.demo-status {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+  font-size: 11px;
+  color: #62728a;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  flex-shrink: 0;
+}
+.status-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #4f80d8;
+  flex-shrink: 0;
+}
+.connection-progress {
+  position: absolute;
+  bottom: 35px;
+  left: 24px;
+  width: 280px;
+}
+@media (max-width: 760px) {
+  .demo-workspace.with-inspector {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .demo-inspector {
+    position: absolute;
+    right: 12px;
+    top: 57px;
+    bottom: 34px;
+    width: min(340px, calc(100% - 24px));
+    box-shadow: -12px 0 40px #172b4326;
+    z-index: 2;
+  }
+  .machine-diagram svg {
+    height: 130px;
+  }
+  .demo-toolbar button {
+    padding: 5px 7px;
+    font-size: 12px;
+  }
+}
+@media (max-width: 480px), (max-height: 500px) {
+  .demo-app {
+    min-height: 580px;
+  }
+  .diagram-heading {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 4px;
+  }
+  .catalog-fields {
+    grid-template-columns: 1fr;
+  }
+}

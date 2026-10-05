@@ -1,0 +1,34 @@
+project:
+  type: website
+  output-dir: _site
+  render:
+    - '*.qmd'
+  pre-render:
+    - bash scripts/build-demo.sh
+  resources:
+    - demo-assets/**
+website:
+  title: xstate-duckdb
+  navbar:
+    left:
+      - href: index.qmd
+        text: Overview
+      - href: getting-started.qmd
+      - href: demo.qmd
+        text: Live demo
+  sidebar:
+    style: docked
+    contents:
+      - getting-started.qmd
+      - queries.qmd
+      - catalog.qmd
+      - reference.qmd
+      - observability.qmd
+      - optimistic.qmd
+      - demo.qmd
+format:
+  html:
+    theme: cosmo
+    toc: true
+    css: styles.css
+    code-copy: true
