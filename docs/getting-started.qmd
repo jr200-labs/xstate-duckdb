@@ -10,7 +10,7 @@ Install the library and its peer dependencies in your browser application:
 pnpm add @jr200-labs/xstate-duckdb xstate @duckdb/duckdb-wasm apache-arrow @opentelemetry/api @opentelemetry/api-logs
 ```
 
-The current library requires DuckDB-Wasm `>=1.33.1-dev42.0 <2`, Arrow `>=21 <22`, OpenTelemetry API `^1.9.1`, and OpenTelemetry Logs API `^0.221.0`. For React, also install `@xstate/react`.
+The current library requires DuckDB-Wasm `>=1.33.1-dev42.0 <2`, Arrow `>=21 <22`, OpenTelemetry API `^1.9.1`, and OpenTelemetry Logs API `^0.222.0`. For React, also install `@xstate/react`.
 
 ## Configure, connect, query
 

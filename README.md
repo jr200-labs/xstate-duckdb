@@ -39,7 +39,7 @@ Supported ranges:
 | `@duckdb/duckdb-wasm`     | `>=1.33.1-dev42.0 <2` |
 | `apache-arrow`            | `>=21 <22`            |
 | `@opentelemetry/api`      | `^1.9.1`              |
-| `@opentelemetry/api-logs` | `^0.221.0`            |
+| `@opentelemetry/api-logs` | `^0.222.0`            |
 
 ## Documentation and live demo
 
