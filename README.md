@@ -38,8 +38,8 @@ Supported ranges:
 | ------------------------- | --------------------- |
 | `@duckdb/duckdb-wasm`     | `>=1.33.1-dev42.0 <2` |
 | `apache-arrow`            | `>=21 <22`            |
-| `@opentelemetry/api`      | `^1.9.1`              |
-| `@opentelemetry/api-logs` | `^0.222.0`            |
+| `@opentelemetry/api`      | `^1.10.0`             |
+| `@opentelemetry/api-logs` | `^0.223.0`            |
 
 ## Documentation and live demo
 
