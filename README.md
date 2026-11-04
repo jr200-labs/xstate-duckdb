@@ -38,8 +38,12 @@ Supported ranges:
 | ------------------------- | --------------------- |
 | `@duckdb/duckdb-wasm`     | `>=1.33.1-dev42.0 <2` |
 | `apache-arrow`            | `>=21 <22`            |
-| `@opentelemetry/api`      | `^1.9.1`              |
-| `@opentelemetry/api-logs` | `^0.222.0`            |
+| `@opentelemetry/api`      | `^1.10.0`             |
+| `@opentelemetry/api-logs` | `^0.223.0`            |
+
+This version requires OpenTelemetry API 1.10.0 or newer within major 1 and
+OpenTelemetry Logs API 0.223.x. Consumers using API 1.9.x or Logs API 0.222.x
+must upgrade those direct dependencies together with this package.
 
 ## Documentation and live demo
 
