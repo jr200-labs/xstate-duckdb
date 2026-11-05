@@ -1,5 +1,14 @@
 # Changelog
 
+## [2.0.2](https://github.com/jr200-labs/xstate-duckdb/compare/v2.0.1...v2.0.2) (2026-11-05)
+
+
+### Bug Fixes
+
+* **ci:** sync artifact deletion convergence repair ([#183](https://github.com/jr200-labs/xstate-duckdb/issues/183)) ([c6766d6](https://github.com/jr200-labs/xstate-duckdb/commit/c6766d636051ae17d83fd60ddfdc19f0b22df9e6))
+* **deps:** update all non-major dependencies to ^3.1.0 ([10ac4e2](https://github.com/jr200-labs/xstate-duckdb/commit/10ac4e2b0e4010a47966973dbedbecf6d1acb945))
+* **deps:** update dependency jr200-labs/github-action-templates to shared-v0.1.95 ([32ff81d](https://github.com/jr200-labs/xstate-duckdb/commit/32ff81d6744482fbdfa78bdb948fb1ea59eb3bd0))
+
 ## [2.0.1](https://github.com/jr200-labs/xstate-duckdb/compare/v2.0.0...v2.0.1) (2026-11-05)
 
 
