@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.0.1](https://github.com/jr200-labs/xstate-duckdb/compare/v2.0.0...v2.0.1) (2026-11-05)
+
+
+### Bug Fixes
+
+* **deps:** update dependency vite to ^8.3.6 ([e0657e5](https://github.com/jr200-labs/xstate-duckdb/commit/e0657e5ad237dc1068e606c81443bac03f773124))
+
 ## [2.0.0](https://github.com/jr200-labs/xstate-duckdb/compare/v1.10.0...v2.0.0) (2026-11-05)
 
 
