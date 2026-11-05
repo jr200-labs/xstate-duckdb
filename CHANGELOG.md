@@ -1,5 +1,27 @@
 # Changelog
 
+## [2.0.0](https://github.com/jr200-labs/xstate-duckdb/compare/v1.10.0...v2.0.0) (2026-11-05)
+
+
+### ⚠ BREAKING CHANGES
+
+* **deps:** repair dependency peers and documentation workflows ([#176](https://github.com/jr200-labs/xstate-duckdb/issues/176))
+
+### Features
+
+* **deps:** update dependency node to v26 ([07c89f1](https://github.com/jr200-labs/xstate-duckdb/commit/07c89f1aa66d6ca2b7e01f2b97f57cdeb5ef2e6a))
+* **deps:** update opentelemetry-js monorepo to v3 ([#164](https://github.com/jr200-labs/xstate-duckdb/issues/164)) ([20e518f](https://github.com/jr200-labs/xstate-duckdb/commit/20e518fdbdd5c953b0e130495cd8530eb055332f))
+
+
+### Bug Fixes
+
+* **deps:** repair dependency peers and documentation workflows ([#176](https://github.com/jr200-labs/xstate-duckdb/issues/176)) ([d914b89](https://github.com/jr200-labs/xstate-duckdb/commit/d914b89da3c6bdcd5f2e4cf11c3402bf27044bff))
+* **deps:** update actions/create-github-app-token action to v3.3.0 ([#163](https://github.com/jr200-labs/xstate-duckdb/issues/163)) ([a5bb85a](https://github.com/jr200-labs/xstate-duckdb/commit/a5bb85a9436b7bdeff1c6ce9c4018d48ada0200d))
+* **deps:** update dependency jr200-labs/github-action-templates to shared-v0.1.75 ([#162](https://github.com/jr200-labs/xstate-duckdb/issues/162)) ([5365469](https://github.com/jr200-labs/xstate-duckdb/commit/53654698f9c11de700b82f8e9b013453d76c8e75))
+* **deps:** update dependency jr200-labs/github-action-templates to shared-v0.1.92 ([a300698](https://github.com/jr200-labs/xstate-duckdb/commit/a3006987efb3f68d7e9868e16eb041acf2f864a9))
+* **deps:** update dependency jr200-labs/github-action-templates to shared-v0.1.93 ([146a030](https://github.com/jr200-labs/xstate-duckdb/commit/146a030a8ecc1eeb27f9c08f58a01b7ff59f9646))
+* **deps:** update github-actions ([#181](https://github.com/jr200-labs/xstate-duckdb/issues/181)) ([a6faf8d](https://github.com/jr200-labs/xstate-duckdb/commit/a6faf8d07628add8fb164e6e47ed39af4dda682c))
+
 ## [1.10.0](https://github.com/jr200-labs/xstate-duckdb/compare/v1.9.1...v1.10.0) (2026-10-05)
 
 
